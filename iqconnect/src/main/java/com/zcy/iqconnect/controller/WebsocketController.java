@@ -10,21 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * create date : 2019/1/8
+ * 2019/1/9
  */
 @RestController
-@RequestMapping("/iq/connect")
-public class IqController {
-
+@RequestMapping("/iq/connect/websocket")
+public class WebsocketController {
     @Autowired
     IqWebSocketClient iqWebSocketClient;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @GetMapping("/sendRequest")
-    public BtResult<?> sendRequest(String requestMessage){
-        logger.info("开始发送请求：" + requestMessage);
-        iqWebSocketClient.send(requestMessage);
+    @GetMapping("/sendMessage")
+    public BtResult<?> sendMessage(String message){
+        logger.info("开始发送请求：" + message);
+        iqWebSocketClient.send(message);
         return BtResult.OK();
     }
 }
