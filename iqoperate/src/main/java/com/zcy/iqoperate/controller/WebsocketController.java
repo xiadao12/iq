@@ -1,7 +1,9 @@
 package com.zcy.iqoperate.controller;
 
+import com.zcy.iqoperate.service.DealMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/iq/operate/websocket")
 public class WebsocketController {
 
-
     private Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Autowired
+    DealMessageService dealMessageService;
 
     /**
      * 处理信息
@@ -23,5 +27,6 @@ public class WebsocketController {
     @PostMapping("/receiveMessage")
     public void receiveMessage(String message){
         logger.info("接收到消息并开始处理：" + message);
+        dealMessageService.dealMessage(message);
     }
 }
