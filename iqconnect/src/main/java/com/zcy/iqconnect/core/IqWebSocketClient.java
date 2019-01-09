@@ -1,5 +1,6 @@
 package com.zcy.iqconnect.core;
 
+import com.zcy.iqconnect.feign.WebsocketFeign;
 import com.zcy.iqconnect.model.SsidRequest;
 import com.zcy.iqconnect.service.IqService;
 import com.zcy.iqconnect.util.IqUtil;
@@ -27,6 +28,9 @@ public class IqWebSocketClient extends WebSocketClient {
 
     @Autowired
     private IqService iqService;
+
+    @Autowired
+    private WebsocketFeign websocketFeign;
 
     /**
      * 构造方法
@@ -87,6 +91,7 @@ public class IqWebSocketClient extends WebSocketClient {
     @Override
     public void onMessage(String s) {
         logger.info("iqwebsocket接收到消息：" + s);
+        websocketFeign.receiveMessage(s);
     }
 
     /**
