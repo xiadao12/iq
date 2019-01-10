@@ -1,8 +1,10 @@
 package com.zcy.iqoperate.service.impl;
 
+import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.IqTryStrategyService;
-import com.zcy.iqoperate.util.DoubleUtil;
+import com.zcy.iqoperate.util.DateUtil;
+import com.zcy.iqoperate.util.ListUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,25 +18,79 @@ public class IqTryStrategyServiceImpl implements IqTryStrategyService {
 
     /**
      * 策略
+     *
      * @param candles
      */
     @Override
     public void strategy(List<CandlesResponse.Candle> candles) {
+
+        //判断传参
+        if (candles == null || candles.size() <= 0) {
+            return;
+        }
+
         strategy1(candles);
+    }
+
+    public void strategy1(List<CandlesResponse.Candle> candles) {
+
+        //记录输赢的次数
+        Integer winNum = 0;
+        Integer lostNum = 0;
+
+        //记录赢输的时间点
+        List winTimeList = new ArrayList<>();
+        List lostTimeList = new ArrayList<>();
+
+        //前面节点个数
+        Integer preSize = 4;
+        //前置节点涨跌集合
+        List<Boolean> preList = new ArrayList<>();
+        for(int i=0;i<preSize;i++){
+            preList.add(null);
+        }
+
+        for (int i = 0; i < candles.size() - 1; i++) {
+            CandlesResponse.Candle candle = candles.get(i);
+
+            CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+
+            Boolean rise = candleMessage.getRise();
+
+            //判断是否前三次是连续三次涨或跌
+            Boolean judgeResult = judgeTimes(preList);
+
+            if (judgeResult != null && rise != null) {
+                if ((judgeResult && !rise) || (!judgeResult && rise)) {
+                    winNum++;
+                    winTimeList.add(DateUtil.timeStampToDateString(candle.getFrom()*1000));
+                } else {
+                    lostNum++;
+                    lostTimeList.add(DateUtil.timeStampToDateString(candle.getFrom()*1000));
+                }
+
+                //符合标准后跳过
+                i=i+preSize;
+            }
+
+            //向左偏移一位
+            ListUtil.offsetLeft(preList, rise);
+        }
+
+        System.out.println("winNum = " + winNum);
+        System.out.println("lostNum = " + lostNum);
+        System.out.println("winTimeList = " + winTimeList);
+        System.out.println("lostTimeList = " + lostTimeList);
     }
 
     /**
      * 策略一
      * 根据影线判断
      */
-    public void strategy1(List<CandlesResponse.Candle> candles) {
-        if (candles == null || candles.size() <= 0) {
-            return;
-        }
+    public void strategy2(List<CandlesResponse.Candle> candles) {
 
-        //记录赢的次数
+/*        //记录输赢的次数
         Integer winNum = 0;
-        //记录输的次数
         Integer lostNum = 0;
 
         //记录赢输的时间点
@@ -79,15 +135,15 @@ public class IqTryStrategyServiceImpl implements IqTryStrategyService {
 
             //如果是上涨
             if (currentProcess == null || currentProcess) {
-/*                lowerShadow = open - min;
-                upperShadow = max - close;*/
+*//*                lowerShadow = open - min;
+                upperShadow = max - close;*//*
                 lowerShadow = DoubleUtil.sub(open, min);
                 upperShadow = DoubleUtil.sub(max, close);
 
 
             } else {
-/*                lowerShadow = close - min;
-                upperShadow = max - open;*/
+*//*                lowerShadow = close - min;
+                upperShadow = max - open;*//*
                 lowerShadow = DoubleUtil.sub(close, min);
                 upperShadow = DoubleUtil.sub(max, open);
 
@@ -142,7 +198,18 @@ public class IqTryStrategyServiceImpl implements IqTryStrategyService {
         System.out.println("winNum = " + winNum);
         System.out.println("lostNum = " + lostNum);
         System.out.println("winTimeList = " + winTimeList);
-        System.out.println("lostTimeList = " + lostTimeList);
+        System.out.println("lostTimeList = " + lostTimeList);*/
+    }
+
+    /**
+     * 判断是否符合标准。比如存在两个涨
+     *
+     * @param preList
+     * @return
+     */
+    Boolean judgeTimes(List<Boolean> preList) {
+        Integer num = preList.size();
+        return judgeTimes(preList, num);
     }
 
     /**
@@ -153,6 +220,10 @@ public class IqTryStrategyServiceImpl implements IqTryStrategyService {
      * @return
      */
     Boolean judgeTimes(List<Boolean> preList, Integer num) {
+
+        if(preList == null || preList.size() <=0){
+            return null;
+        }
 
         Integer riseNum = 0;
         Integer fallNum = 0;
