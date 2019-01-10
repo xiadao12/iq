@@ -14,8 +14,8 @@ import java.util.List;
 public interface IqTryStrategyService {
 
     /**
-     * 策略一
-     * 根据影线判断
+     * 策略
+     * @param candles
      */
-    void strategy1(List<CandlesResponse.Candle> candles);
+    void strategy(List<CandlesResponse.Candle> candles);
 }

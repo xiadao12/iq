@@ -36,7 +36,7 @@ public class TestController {
                 "112_233",
                 2,
                 60,
-                443022L-10,
+                443022L-1000,
                 443022L);
 
         websocketService.sendMessage(getCandlesRequest);

@@ -15,10 +15,18 @@ import java.util.List;
 public class IqTryStrategyServiceImpl implements IqTryStrategyService {
 
     /**
+     * 策略
+     * @param candles
+     */
+    @Override
+    public void strategy(List<CandlesResponse.Candle> candles) {
+        strategy1(candles);
+    }
+
+    /**
      * 策略一
      * 根据影线判断
      */
-    @Override
     public void strategy1(List<CandlesResponse.Candle> candles) {
         if (candles == null || candles.size() <= 0) {
             return;

@@ -114,6 +114,6 @@ public class DealMessageServiceImpl implements DealMessageService {
             return;
         }
 
-        iqTryStrategyService.strategy1(candles);
+        iqTryStrategyService.strategy(candles);
     }
 }
