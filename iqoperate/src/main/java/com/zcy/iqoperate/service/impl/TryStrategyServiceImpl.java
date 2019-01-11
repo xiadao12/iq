@@ -4,6 +4,7 @@ import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.util.DateUtil;
+import com.zcy.iqoperate.util.DoubleUtil;
 import com.zcy.iqoperate.util.ListUtil;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,73 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             return;
         }
 
-        strategy1(candles);
+        strategyLong(candles);
+    }
+
+    /**
+     * 策略：长蜡烛
+     * @param candles
+     */
+    public void strategyLong(List<CandlesResponse.Candle> candles){
+
+        //计算因子
+        Double factor = 0.001;
+        //跳过蜡烛图个数的结果
+        Integer skip = 1;
+
+        //记录输赢的次数
+        Integer winNum = 0;
+        Integer lostNum = 0;
+
+        //记录赢输的时间点
+        List winTimeList = new ArrayList<>();
+        List lostTimeList = new ArrayList<>();
+
+        for (int i = 0; i < candles.size() - 1 - skip; i++) {
+            CandlesResponse.Candle candle = candles.get(i);
+
+            CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+
+            Double open = candle.getOpen();
+            Double entity = candleMessage.getEntity();
+
+            String fromString = DateUtil.timeStampToDateString(candle.getFrom()*1000);
+
+            System.out.println(entity + "   " + DoubleUtil.multiply(open,factor));
+
+            //判断实体是否足够长
+            if(entity >= DoubleUtil.multiply(open,factor)){
+                //获取结果蜡烛图（跳过个数为skip）
+                CandlesResponse.Candle resultCandle = candles.get(i + 1 + skip);
+
+                //如果长蜡烛是涨
+                if(candleMessage.getRise()){
+                    if(resultCandle.getClose() < candle.getClose()){
+                        winNum ++;
+                        winTimeList.add(fromString);
+                    }else {
+                        lostNum++;
+                        lostTimeList.add(fromString);
+                    }
+                }else {
+                    if(resultCandle.getClose() > candle.getClose()){
+                        winNum ++;
+                        winTimeList.add(fromString);
+                    }else {
+                        lostNum++;
+                        lostTimeList.add(fromString);
+                    }
+                }
+            }
+
+        }
+
+        System.out.println("winNum = " + winNum);
+        System.out.println("lostNum = " + lostNum);
+        System.out.println("winTimeList = " + winTimeList);
+        System.out.println("lostTimeList = " + lostTimeList);
+
+
     }
 
     public void strategy1(List<CandlesResponse.Candle> candles) {
