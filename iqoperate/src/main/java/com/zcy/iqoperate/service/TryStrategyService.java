@@ -11,7 +11,7 @@ import java.util.List;
  * create date : 2019/1/7
  */
 @Service
-public interface IqTryStrategyService {
+public interface TryStrategyService {
 
     /**
      * 策略

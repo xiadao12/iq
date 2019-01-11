@@ -5,7 +5,7 @@ import com.zcy.iqoperate.model.response.CandleGeneratedResponse;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.model.response.TimeSyncResponse;
 import com.zcy.iqoperate.service.DealMessageService;
-import com.zcy.iqoperate.service.IqTryStrategyService;
+import com.zcy.iqoperate.service.TryStrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class DealMessageServiceImpl implements DealMessageService {
     private static CandleGeneratedResponse preCandleGeneratedResponse;
 
     @Autowired
-    IqTryStrategyService iqTryStrategyService;
+    TryStrategyService tryStrategyService;
 
     /**
      * 处理接收到的信息
@@ -114,6 +114,6 @@ public class DealMessageServiceImpl implements DealMessageService {
             return;
         }
 
-        iqTryStrategyService.strategy(candles);
+        tryStrategyService.strategy(candles);
     }
 }

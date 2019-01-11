@@ -2,7 +2,7 @@ package com.zcy.iqoperate.service.impl;
 
 import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
-import com.zcy.iqoperate.service.IqTryStrategyService;
+import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.ListUtil;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
  * create date : 2019/1/7
  */
 @Service
-public class IqTryStrategyServiceImpl implements IqTryStrategyService {
+public class TryStrategyServiceImpl implements TryStrategyService {
 
     /**
      * 策略
