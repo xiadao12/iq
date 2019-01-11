@@ -21,8 +21,8 @@ public class CandleMessage {
     private BigDecimal upperShadow = new BigDecimal(0);
     //实体长度
     private BigDecimal entity = new BigDecimal(0);
-    //是否是涨,true为涨，false为跌，null为平
-    private Boolean rise = null;
+    //是否是涨,1为涨，-1为跌，0为平
+    private Integer trend = 0;
     //开始时间
     private Long from;
     //结束时间
@@ -42,15 +42,8 @@ public class CandleMessage {
         BigDecimal min = candle.getMin();
         BigDecimal max = candle.getMax();
 
-        Boolean rise = null;
         //判断是涨或跌
-        if (open.compareTo(close) == 0) {
-            rise = null;
-        } else if (open.compareTo(close) > 0) {
-            rise = true;
-        } else {
-            rise = false;
-        }
+        Integer trend = close.compareTo(open);
 
         //实体最小值
         BigDecimal lower = new BigDecimal(0);
@@ -67,8 +60,8 @@ public class CandleMessage {
         //结束时间
         Long to = candle.getTo();
 
-        //如果是上涨
-        if (rise == null || rise) {
+        //如果是上涨或平
+        if (trend >= 0) {
             lower = open;
             upper = close;
             lowerShadow = open.subtract(min);
@@ -88,7 +81,7 @@ public class CandleMessage {
         candleMessage.setLowerShadow(lowerShadow);
         candleMessage.setUpperShadow(upperShadow);
         candleMessage.setEntity(entity);
-        candleMessage.setRise(rise);
+        candleMessage.setTrend(trend);
         candleMessage.setFrom(from);
         candleMessage.setTo(to);
 
@@ -135,12 +128,12 @@ public class CandleMessage {
         this.entity = entity;
     }
 
-    public Boolean getRise() {
-        return rise;
+    public Integer getTrend() {
+        return trend;
     }
 
-    public void setRise(Boolean rise) {
-        this.rise = rise;
+    public void setTrend(Integer trend) {
+        this.trend = trend;
     }
 
     public Long getFrom() {

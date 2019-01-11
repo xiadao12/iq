@@ -35,68 +35,76 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
     /**
      * 策略：长蜡烛
+     *
      * @param candles
      */
-    public void strategyLong(List<CandlesResponse.Candle> candles){
+    public void strategyLong(List<CandlesResponse.Candle> candles) {
 
-        //计算因子
-        BigDecimal factor = new BigDecimal(0.00025);
-        //跳过蜡烛图个数的结果
-        Integer skip = 1;
+        BigDecimal startFactor = new BigDecimal(0.00001);
+        BigDecimal endFactor = new BigDecimal(0.0005);
+        BigDecimal distance = new BigDecimal(0.00001);
 
-        //记录输赢的次数
-        Integer winNum = 0;
-        Integer lostNum = 0;
+        for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(distance)) {
 
-        //记录赢输的时间点
-        List winTimeList = new ArrayList<>();
-        List lostTimeList = new ArrayList<>();
+            System.out.println("计算因子为：" + factor);
 
-        for (int i = 0; i < candles.size() - 1 - skip; i++) {
-            CandlesResponse.Candle candle = candles.get(i);
+            //跳过蜡烛图个数的结果
+            Integer skip = 1;
 
-            CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+            //记录输赢的次数
+            Integer winNum = 0;
+            Integer lostNum = 0;
 
-            BigDecimal open = candle.getOpen();
-            BigDecimal entity = candleMessage.getEntity();
+            //记录赢输的时间点
+            List winTimeList = new ArrayList<>();
+            List lostTimeList = new ArrayList<>();
 
-            String fromString = DateUtil.timeStampToDateString(candle.getFrom()*1000);
+            for (int i = 0; i < candles.size() - 1 - skip; i++) {
+                CandlesResponse.Candle candle = candles.get(i);
 
-            System.out.println(entity + "  " + open.multiply(factor));
+                CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
-            //判断实体是否足够长
-            if(entity.compareTo(open.multiply(factor)) > 0){
-                //获取结果蜡烛图（跳过个数为skip）
-                CandlesResponse.Candle resultCandle = candles.get(i + 1 + skip);
+                BigDecimal open = candle.getOpen();
+                BigDecimal entity = candleMessage.getEntity();
 
-                //如果长蜡烛是涨
-                if(candleMessage.getRise()){
-                    if(resultCandle.getClose().compareTo(candle.getClose()) < 0){
-                        winNum ++;
-                        winTimeList.add(fromString);
-                    }else {
-                        lostNum++;
-                        lostTimeList.add(fromString);
-                    }
-                }else {
-                    if(resultCandle.getClose().compareTo(candle.getClose()) > 0){
-                        winNum ++;
-                        winTimeList.add(fromString);
-                    }else {
-                        lostNum++;
-                        lostTimeList.add(fromString);
+                //获取开始时间
+                String fromString = DateUtil.timeStampToDateString(candle.getFrom() * 1000 + 60 * 1000);
+
+                //判断实体是否足够长
+                if (entity.compareTo(open.multiply(factor)) > 0) {
+                    //获取结果蜡烛图（跳过个数为skip）
+                    CandlesResponse.Candle resultCandle = candles.get(i + 1 + skip);
+
+                    //获取蜡烛涨跌
+                    Integer trend = candleMessage.getTrend();
+
+                    //如果长蜡烛是涨
+                    if (trend > 0) {
+                        if (resultCandle.getClose().compareTo(candle.getClose()) < 0) {
+                            winNum++;
+                            winTimeList.add(fromString);
+                        } else {
+                            lostNum++;
+                            lostTimeList.add(fromString);
+                        }
+                    } else {
+                        if (resultCandle.getClose().compareTo(candle.getClose()) > 0) {
+                            winNum++;
+                            winTimeList.add(fromString);
+                        } else {
+                            lostNum++;
+                            lostTimeList.add(fromString);
+                        }
                     }
                 }
+
             }
 
+            System.out.println("winNum = " + winNum);
+            System.out.println("lostNum = " + lostNum);
+            System.out.println("winTimeList = " + winTimeList);
+            System.out.println("lostTimeList = " + lostTimeList);
         }
-
-        System.out.println("winNum = " + winNum);
-        System.out.println("lostNum = " + lostNum);
-        System.out.println("winTimeList = " + winTimeList);
-        System.out.println("lostTimeList = " + lostTimeList);
-
-
     }
 
     public void strategy1(List<CandlesResponse.Candle> candles) {
@@ -113,7 +121,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer preSize = 4;
         //前置节点涨跌集合
         List<Boolean> preList = new ArrayList<>();
-        for(int i=0;i<preSize;i++){
+        for (int i = 0; i < preSize; i++) {
             preList.add(null);
         }
 
@@ -122,26 +130,27 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
-            Boolean rise = candleMessage.getRise();
+            //获取蜡烛涨跌
+            Integer trend = candleMessage.getTrend();
 
             //判断是否前三次是连续三次涨或跌
             Boolean judgeResult = judgeTimes(preList);
 
-            if (judgeResult != null && rise != null) {
-                if ((judgeResult && !rise) || (!judgeResult && rise)) {
+            if (judgeResult != null) {
+                if ((judgeResult && trend < 0) || (!judgeResult && trend > 0)) {
                     winNum++;
-                    winTimeList.add(DateUtil.timeStampToDateString(candle.getFrom()*1000));
+                    winTimeList.add(DateUtil.timeStampToDateString(candle.getFrom() * 1000));
                 } else {
                     lostNum++;
-                    lostTimeList.add(DateUtil.timeStampToDateString(candle.getFrom()*1000));
+                    lostTimeList.add(DateUtil.timeStampToDateString(candle.getFrom() * 1000));
                 }
 
                 //符合标准后跳过
-                i=i+preSize;
+                i = i + preSize;
             }
 
             //向左偏移一位
-            ListUtil.offsetLeft(preList, rise);
+            ListUtil.offsetLeft(preList, trend);
         }
 
         System.out.println("winNum = " + winNum);
@@ -288,7 +297,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      */
     Boolean judgeTimes(List<Boolean> preList, Integer num) {
 
-        if(preList == null || preList.size() <=0){
+        if (preList == null || preList.size() <= 0) {
             return null;
         }
 

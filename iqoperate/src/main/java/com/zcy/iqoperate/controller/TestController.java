@@ -1,5 +1,6 @@
 package com.zcy.iqoperate.controller;
 
+import com.zcy.iqoperate.core.IqUtil;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.service.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,14 @@ public class TestController {
                 currentId-600,
                 currentId);*/
 
+        Long currentId = IqUtil.getCurrentId();
+
         GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
                 "112_233",
                 1,
                 60,
-                443022L-1000,
-                443022L);
+                currentId-1000,
+                currentId);
 
         websocketService.sendMessage(getCandlesRequest);
     }
