@@ -34,7 +34,7 @@ public class TestController {
 
         GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
                 "112_233",
-                2,
+                1,
                 60,
                 443022L-1000,
                 443022L);

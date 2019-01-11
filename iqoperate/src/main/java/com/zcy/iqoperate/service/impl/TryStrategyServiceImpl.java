@@ -4,10 +4,10 @@ import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.util.DateUtil;
-import com.zcy.iqoperate.util.DoubleUtil;
 import com.zcy.iqoperate.util.ListUtil;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     public void strategyLong(List<CandlesResponse.Candle> candles){
 
         //计算因子
-        Double factor = 0.001;
+        BigDecimal factor = new BigDecimal(0.00025);
         //跳过蜡烛图个数的结果
         Integer skip = 1;
 
@@ -57,21 +57,21 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
-            Double open = candle.getOpen();
-            Double entity = candleMessage.getEntity();
+            BigDecimal open = candle.getOpen();
+            BigDecimal entity = candleMessage.getEntity();
 
             String fromString = DateUtil.timeStampToDateString(candle.getFrom()*1000);
 
-            System.out.println(entity + "   " + DoubleUtil.multiply(open,factor));
+            System.out.println(entity + "  " + open.multiply(factor));
 
             //判断实体是否足够长
-            if(entity >= DoubleUtil.multiply(open,factor)){
+            if(entity.compareTo(open.multiply(factor)) > 0){
                 //获取结果蜡烛图（跳过个数为skip）
                 CandlesResponse.Candle resultCandle = candles.get(i + 1 + skip);
 
                 //如果长蜡烛是涨
                 if(candleMessage.getRise()){
-                    if(resultCandle.getClose() < candle.getClose()){
+                    if(resultCandle.getClose().compareTo(candle.getClose()) < 0){
                         winNum ++;
                         winTimeList.add(fromString);
                     }else {
@@ -79,7 +79,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                         lostTimeList.add(fromString);
                     }
                 }else {
-                    if(resultCandle.getClose() > candle.getClose()){
+                    if(resultCandle.getClose().compareTo(candle.getClose()) > 0){
                         winNum ++;
                         winTimeList.add(fromString);
                     }else {
@@ -177,10 +177,10 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         for (int i = 0; i < candles.size() - 1; i++) {
             CandlesResponse.Candle candle = candles.get(i);
 
-            Double open = candle.getOpen();
-            Double close = candle.getClose();
-            Double min = candle.getMin();
-            Double max = candle.getMax();
+            BigDecimal open = candle.getOpen();
+            BigDecimal close = candle.getClose();
+            BigDecimal min = candle.getMin();
+            BigDecimal max = candle.getMax();
 
             Boolean currentProcess = null;
             //判断第四次是涨或跌
@@ -193,12 +193,12 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //下影线长
-            Double lowerShadow = 0D;
+            BigDecimal lowerShadow = 0D;
             //上影线长
-            Double upperShadow = 0D;
+            BigDecimal upperShadow = 0D;
             //实体长度
-            // Double entity = Math.abs(open - close);
-            Double entity = Math.abs(DoubleUtil.sub(open, close));
+            // BigDecimal entity = Math.abs(open - close);
+            BigDecimal entity = Math.abs(DoubleUtil.sub(open, close));
 
             //如果是上涨
             if (currentProcess == null || currentProcess) {
@@ -325,14 +325,14 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      * @return
      */
     Boolean judgeRise(CandlesResponse.Candle candle) {
-        Double open = candle.getOpen();
-        Double close = candle.getClose();
+        BigDecimal open = candle.getOpen();
+        BigDecimal close = candle.getClose();
 
         Boolean currentProcess = null;
         //判断第四次是涨或跌
-        if (open == close) {
+        if (open.compareTo(close) == 0) {
             currentProcess = null;
-        } else if (close > open) {
+        } else if (close.compareTo(open) > 0) {
             currentProcess = true;
         } else {
             currentProcess = false;

@@ -1,25 +1,26 @@
 package com.zcy.iqoperate.model;
 
 import com.zcy.iqoperate.model.response.CandlesResponse;
-import com.zcy.iqoperate.util.DoubleUtil;
+
+import java.math.BigDecimal;
 
 /**
  * 蜡烛信息
- *
+ * <p>
  * create date : 2019/1/8
  */
 public class CandleMessage {
 
     //实体最小值
-    private Double lower = 0D;
+    private BigDecimal lower = new BigDecimal(0);
     //实体最大值
-    private Double upper = 0D;
+    private BigDecimal upper = new BigDecimal(0);
     //下影线长
-    private Double lowerShadow = 0D;
+    private BigDecimal lowerShadow = new BigDecimal(0);
     //上影线长
-    private Double upperShadow = 0D;
+    private BigDecimal upperShadow = new BigDecimal(0);
     //实体长度
-    private Double entity = 0D;
+    private BigDecimal entity = new BigDecimal(0);
     //是否是涨,true为涨，false为跌，null为平
     private Boolean rise = null;
     //开始时间
@@ -36,31 +37,31 @@ public class CandleMessage {
      */
     public static CandleMessage getCandleMessage(CandlesResponse.Candle candle) {
 
-        Double open = candle.getOpen();
-        Double close = candle.getClose();
-        Double min = candle.getMin();
-        Double max = candle.getMax();
+        BigDecimal open = candle.getOpen();
+        BigDecimal close = candle.getClose();
+        BigDecimal min = candle.getMin();
+        BigDecimal max = candle.getMax();
 
         Boolean rise = null;
         //判断是涨或跌
-        if (open == close) {
+        if (open.compareTo(close) == 0) {
             rise = null;
-        } else if (close > open) {
+        } else if (open.compareTo(close) > 0) {
             rise = true;
         } else {
             rise = false;
         }
 
         //实体最小值
-        Double lower = 0D;
+        BigDecimal lower = new BigDecimal(0);
         //实体最大值
-        Double upper = 0D;
+        BigDecimal upper = new BigDecimal(0);
         //下影线长
-        Double lowerShadow = 0D;
+        BigDecimal lowerShadow = new BigDecimal(0);
         //上影线长
-        Double upperShadow = 0D;
+        BigDecimal upperShadow = new BigDecimal(0);
         //实体长度
-        Double entity = Math.abs(DoubleUtil.sub(open, close));
+        BigDecimal entity = open.subtract(close).abs();
         //开始时间
         Long from = candle.getFrom();
         //结束时间
@@ -70,13 +71,13 @@ public class CandleMessage {
         if (rise == null || rise) {
             lower = open;
             upper = close;
-            lowerShadow = DoubleUtil.sub(open, min);
-            upperShadow = DoubleUtil.sub(max, close);
+            lowerShadow = open.subtract(min);
+            upperShadow = max.subtract(close);
         } else {
             lower = close;
             upper = open;
-            lowerShadow = DoubleUtil.sub(close, min);
-            upperShadow = DoubleUtil.sub(max, open);
+            lowerShadow = close.subtract(min);
+            upperShadow = max.subtract(open);
         }
 
         CandleMessage candleMessage = new CandleMessage();
@@ -94,43 +95,43 @@ public class CandleMessage {
         return candleMessage;
     }
 
-    public Double getLower() {
+    public BigDecimal getLower() {
         return lower;
     }
 
-    public void setLower(Double lower) {
+    public void setLower(BigDecimal lower) {
         this.lower = lower;
     }
 
-    public Double getUpper() {
+    public BigDecimal getUpper() {
         return upper;
     }
 
-    public void setUpper(Double upper) {
+    public void setUpper(BigDecimal upper) {
         this.upper = upper;
     }
 
-    public Double getLowerShadow() {
+    public BigDecimal getLowerShadow() {
         return lowerShadow;
     }
 
-    public void setLowerShadow(Double lowerShadow) {
+    public void setLowerShadow(BigDecimal lowerShadow) {
         this.lowerShadow = lowerShadow;
     }
 
-    public Double getUpperShadow() {
+    public BigDecimal getUpperShadow() {
         return upperShadow;
     }
 
-    public void setUpperShadow(Double upperShadow) {
+    public void setUpperShadow(BigDecimal upperShadow) {
         this.upperShadow = upperShadow;
     }
 
-    public Double getEntity() {
+    public BigDecimal getEntity() {
         return entity;
     }
 
-    public void setEntity(Double entity) {
+    public void setEntity(BigDecimal entity) {
         this.entity = entity;
     }
 

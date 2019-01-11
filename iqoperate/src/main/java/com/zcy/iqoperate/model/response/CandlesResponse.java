@@ -1,5 +1,6 @@
 package com.zcy.iqoperate.model.response;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,10 +97,10 @@ public class CandlesResponse {
         private Long id;
         private Long from;
         private Long to;
-        private Double open;
-        private Double close;
-        private Double min;
-        private Double max;
+        private BigDecimal open;
+        private BigDecimal close;
+        private BigDecimal min;
+        private BigDecimal max;
         private Long volume;
 
         public Long getId() {
@@ -126,35 +127,35 @@ public class CandlesResponse {
             this.to = to;
         }
 
-        public Double getOpen() {
+        public BigDecimal getOpen() {
             return open;
         }
 
-        public void setOpen(Double open) {
+        public void setOpen(BigDecimal open) {
             this.open = open;
         }
 
-        public Double getClose() {
+        public BigDecimal getClose() {
             return close;
         }
 
-        public void setClose(Double close) {
+        public void setClose(BigDecimal close) {
             this.close = close;
         }
 
-        public Double getMin() {
+        public BigDecimal getMin() {
             return min;
         }
 
-        public void setMin(Double min) {
+        public void setMin(BigDecimal min) {
             this.min = min;
         }
 
-        public Double getMax() {
+        public BigDecimal getMax() {
             return max;
         }
 
-        public void setMax(Double max) {
+        public void setMax(BigDecimal max) {
             this.max = max;
         }
 

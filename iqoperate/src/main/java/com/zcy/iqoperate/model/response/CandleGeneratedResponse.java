@@ -1,5 +1,7 @@
 package com.zcy.iqoperate.model.response;
 
+import java.math.BigDecimal;
+
 /**
  * 实时蜡烛图
  *
@@ -38,12 +40,12 @@ public class CandleGeneratedResponse{
         private Long min_at;
         private Long max_at;
         private Integer id;
-        private Double open;
-        private Double close;
-        private Double min;
-        private Double max;
-        private Double ask;
-        private Double bid;
+        private BigDecimal open;
+        private BigDecimal close;
+        private BigDecimal min;
+        private BigDecimal max;
+        private BigDecimal ask;
+        private BigDecimal bid;
         private Integer volume;
         private String phase;
 
@@ -111,51 +113,51 @@ public class CandleGeneratedResponse{
             this.id = id;
         }
 
-        public Double getOpen() {
+        public BigDecimal getOpen() {
             return open;
         }
 
-        public void setOpen(Double open) {
+        public void setOpen(BigDecimal open) {
             this.open = open;
         }
 
-        public Double getClose() {
+        public BigDecimal getClose() {
             return close;
         }
 
-        public void setClose(Double close) {
+        public void setClose(BigDecimal close) {
             this.close = close;
         }
 
-        public Double getMin() {
+        public BigDecimal getMin() {
             return min;
         }
 
-        public void setMin(Double min) {
+        public void setMin(BigDecimal min) {
             this.min = min;
         }
 
-        public Double getMax() {
+        public BigDecimal getMax() {
             return max;
         }
 
-        public void setMax(Double max) {
+        public void setMax(BigDecimal max) {
             this.max = max;
         }
 
-        public Double getAsk() {
+        public BigDecimal getAsk() {
             return ask;
         }
 
-        public void setAsk(Double ask) {
+        public void setAsk(BigDecimal ask) {
             this.ask = ask;
         }
 
-        public Double getBid() {
+        public BigDecimal getBid() {
             return bid;
         }
 
-        public void setBid(Double bid) {
+        public void setBid(BigDecimal bid) {
             this.bid = bid;
         }
 
