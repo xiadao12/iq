@@ -40,16 +40,20 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      */
     public void strategyLong(List<CandlesResponse.Candle> candles) {
 
+        //因子最小值
         BigDecimal startFactor = new BigDecimal(0.00001);
+        //因子最大值
         BigDecimal endFactor = new BigDecimal(0.0005);
+        //因子从小到大间距
         BigDecimal distance = new BigDecimal(0.00001);
 
+        //跳过蜡烛图个数的结果
+        Integer skip = 1;
+
+        //遍历起止因子
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(distance)) {
 
             System.out.println("计算因子为：" + factor);
-
-            //跳过蜡烛图个数的结果
-            Integer skip = 1;
 
             //记录输赢的次数
             Integer winNum = 0;
