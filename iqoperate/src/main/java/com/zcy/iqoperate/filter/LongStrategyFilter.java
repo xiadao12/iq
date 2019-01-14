@@ -14,7 +14,7 @@ public class LongStrategyFilter extends BaseStrategyFilter {
     private BigDecimal endFactor;
 
     //因子从小到大间距
-    private BigDecimal distance;
+    private BigDecimal factorDistance;
 
     //跳过个数再获取结果
     private Integer skipSize;
@@ -35,12 +35,12 @@ public class LongStrategyFilter extends BaseStrategyFilter {
         this.endFactor = endFactor;
     }
 
-    public BigDecimal getDistance() {
-        return distance;
+    public BigDecimal getFactorDistance() {
+        return factorDistance;
     }
 
-    public void setDistance(BigDecimal distance) {
-        this.distance = distance;
+    public void setFactorDistance(BigDecimal factorDistance) {
+        this.factorDistance = factorDistance;
     }
 
     public Integer getSkipSize() {

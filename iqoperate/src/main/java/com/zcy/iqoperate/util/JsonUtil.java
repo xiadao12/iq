@@ -26,4 +26,16 @@ public class JsonUtil {
         return json;
     }
 
+    /**
+     * 将对象转换为实体
+     * @param fromObject
+     * @param toValueType
+     * @param <T>
+     * @return
+     */
+    public static <T> T convertValue(Object fromObject, Class<T> toValueType){
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.convertValue(fromObject,toValueType);
+    }
+
 }

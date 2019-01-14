@@ -14,7 +14,13 @@ import java.util.List;
 public interface TryStrategyService {
 
     /**
-     * 策略
+     * 执行
+     * @param strategyFilterObject
+     */
+    void execute(Object strategyFilterObject);
+
+    /**
+     * 根据返回的蜡烛图尝试策略
      * @param candles
      */
     void strategy(List<CandlesResponse.Candle> candles);

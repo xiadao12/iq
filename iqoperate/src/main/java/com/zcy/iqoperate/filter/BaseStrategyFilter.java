@@ -1,24 +1,36 @@
 package com.zcy.iqoperate.filter;
 
+import java.util.List;
+
 /**
  * 策略条件
  * create date : 2019/1/13
  */
 public class BaseStrategyFilter {
+
     //外汇id
     private Integer activeId;
 
     //查询的开始日期 2019-01-01 22:00:00
-    private String startDate;
+    private String startDateString;
 
     //查询的开始日期 2019-01-01 22:00:00
-    private String endDate;
+    private String endDateString;
 
-    //每天活跃开始时间 22:00:00
-    private String activeStartTimeString;
-
-    //每天活跃结束时间 05:00:00
-    private String activeEndTimeString;
+    //内部类，活跃时间
+    /*
+        [
+            {
+                "activeStartTimeString":"22:00:00",
+                "activeEndTimeString":"23:59:59"
+            },
+            {
+                "activeStartTimeString":"00:00:00",
+                "activeEndTimeString":"04:59:59"
+            }
+        ]
+     */
+    private List<ActiveTime> activeTimes;
 
     public Integer getActiveId() {
         return activeId;
@@ -28,39 +40,52 @@ public class BaseStrategyFilter {
         this.activeId = activeId;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public String getStartDateString() {
+        return startDateString;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setStartDateString(String startDateString) {
+        this.startDateString = startDateString;
     }
 
-    public String getEndDate() {
-        return endDate;
+    public String getEndDateString() {
+        return endDateString;
     }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
+    public void setEndDateString(String endDateString) {
+        this.endDateString = endDateString;
     }
 
-    public String getActiveStartTimeString() {
-        return activeStartTimeString;
+    public List<ActiveTime> getActiveTimes() {
+        return activeTimes;
     }
 
-    public void setActiveStartTimeString(String activeStartTimeString) {
-        this.activeStartTimeString = activeStartTimeString;
+    public void setActiveTimes(List<ActiveTime> activeTimes) {
+        this.activeTimes = activeTimes;
     }
 
-    public String getActiveEndTimeString() {
-        return activeEndTimeString;
-    }
+    public static class ActiveTime{
 
-    public void setActiveEndTimeString(String activeEndTimeString) {
-        this.activeEndTimeString = activeEndTimeString;
-    }
+        //每天活跃开始时间 22:00:00
+        private String activeStartTimeString;
 
-    public static Class ActiveDate{
+        //每天活跃结束时间 05:00:00
+        private String activeEndTimeString;
 
+        public String getActiveStartTimeString() {
+            return activeStartTimeString;
+        }
+
+        public void setActiveStartTimeString(String activeStartTimeString) {
+            this.activeStartTimeString = activeStartTimeString;
+        }
+
+        public String getActiveEndTimeString() {
+            return activeEndTimeString;
+        }
+
+        public void setActiveEndTimeString(String activeEndTimeString) {
+            this.activeEndTimeString = activeEndTimeString;
+        }
     }
 }

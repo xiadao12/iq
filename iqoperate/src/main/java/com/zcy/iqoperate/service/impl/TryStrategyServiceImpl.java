@@ -1,10 +1,16 @@
 package com.zcy.iqoperate.service.impl;
 
+import com.zcy.iqoperate.filter.BaseStrategyFilter;
+import com.zcy.iqoperate.filter.LongStrategyFilter;
 import com.zcy.iqoperate.model.CandleMessage;
+import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
+import com.zcy.iqoperate.service.WebsocketService;
 import com.zcy.iqoperate.util.DateUtil;
+import com.zcy.iqoperate.util.JsonUtil;
 import com.zcy.iqoperate.util.ListUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +22,48 @@ import java.util.List;
  */
 @Service
 public class TryStrategyServiceImpl implements TryStrategyService {
+
+    //条件
+    private Object strategyFilterObject;
+
+    @Autowired
+    WebsocketService websocketService;
+
+    /**
+     * 执行
+     *
+     * @param strategyFilterObject
+     */
+    @Override
+    public void execute(Object strategyFilterObject) {
+        this.strategyFilterObject = strategyFilterObject;
+
+        BaseStrategyFilter baseStrategyFilter = JsonUtil.convertValue(strategyFilterObject, BaseStrategyFilter.class);
+
+        //外汇id
+        Integer activeId = baseStrategyFilter.getActiveId();
+
+        //查询的开始日期 2019-01-01 22:00:00
+        String startDateString = baseStrategyFilter.getStartDateString();
+
+        //查询的开始日期 2019-01-01 22:00:00
+        String endDateString = baseStrategyFilter.getEndDateString();
+
+        //活跃时间
+        List<BaseStrategyFilter.ActiveTime> activeTimes = baseStrategyFilter.getActiveTimes();
+
+        //Long currentId = IqUtil.getCurrentId();
+        Long currentId = 447397L;
+
+        GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
+                "112_233",
+                activeId,
+                60,
+                currentId - 10,
+                currentId);
+
+        websocketService.sendMessage(getCandlesRequest);
+    }
 
     /**
      * 策略
@@ -40,18 +88,22 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      */
     public void strategyLong(List<CandlesResponse.Candle> candles) {
 
-        //因子最小值
-        BigDecimal startFactor = new BigDecimal(0.00001);
-        //因子最大值
-        BigDecimal endFactor = new BigDecimal(0.0005);
-        //因子从小到大间距
-        BigDecimal distance = new BigDecimal(0.00001);
+        LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
 
-        //跳过蜡烛图个数的结果
-        Integer skip = 1;
+        //因子最小值
+        BigDecimal startFactor = longStrategyFilter.getStartFactor();
+
+        //因子最大值
+        BigDecimal endFactor = longStrategyFilter.getEndFactor();
+
+        //因子从小到大间距
+        BigDecimal factorDistance = longStrategyFilter.getFactorDistance();
+
+        //跳过个数再获取结果
+        Integer skipSize = longStrategyFilter.getSkipSize();
 
         //遍历起止因子
-        for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(distance)) {
+        for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
             System.out.println("计算因子为：" + factor);
 
@@ -63,7 +115,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             List winTimeList = new ArrayList<>();
             List lostTimeList = new ArrayList<>();
 
-            for (int i = 0; i < candles.size() - 1 - skip; i++) {
+            for (int i = 0; i < candles.size() - 1 - skipSize; i++) {
                 CandlesResponse.Candle candle = candles.get(i);
 
                 CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
@@ -77,7 +129,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 //判断实体是否足够长
                 if (entity.compareTo(open.multiply(factor)) > 0) {
                     //获取结果蜡烛图（跳过个数为skip）
-                    CandlesResponse.Candle resultCandle = candles.get(i + 1 + skip);
+                    CandlesResponse.Candle resultCandle = candles.get(i + 1 + skipSize);
 
                     //获取蜡烛涨跌
                     Integer trend = candleMessage.getTrend();
