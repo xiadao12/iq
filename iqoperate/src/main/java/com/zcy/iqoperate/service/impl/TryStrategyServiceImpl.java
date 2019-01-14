@@ -38,7 +38,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     public void execute(Object strategyFilterObject) {
         this.strategyFilterObject = strategyFilterObject;
 
-        BaseStrategyFilter baseStrategyFilter = JsonUtil.convertValue(strategyFilterObject, BaseStrategyFilter.class);
+        BaseStrategyFilter baseStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
 
         //外汇id
         Integer activeId = baseStrategyFilter.getActiveId();
@@ -49,9 +49,6 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //查询的开始日期 2019-01-01 22:00:00
         String endDateString = baseStrategyFilter.getEndDateString();
 
-        //活跃时间
-        List<BaseStrategyFilter.ActiveTime> activeTimes = baseStrategyFilter.getActiveTimes();
-
         //Long currentId = IqUtil.getCurrentId();
         Long currentId = 447397L;
 
@@ -59,7 +56,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 "112_233",
                 activeId,
                 60,
-                currentId - 10,
+                currentId - 1000,
                 currentId);
 
         websocketService.sendMessage(getCandlesRequest);
@@ -90,6 +87,9 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
         LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
 
+        //活跃时间
+        List<BaseStrategyFilter.ActiveTime> activeTimes = longStrategyFilter.getActiveTimes();
+
         //因子最小值
         BigDecimal startFactor = longStrategyFilter.getStartFactor();
 
@@ -105,6 +105,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //遍历起止因子
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
+            System.out.println();
             System.out.println("计算因子为：" + factor);
 
             //记录输赢的次数
@@ -117,6 +118,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             for (int i = 0; i < candles.size() - 1 - skipSize; i++) {
                 CandlesResponse.Candle candle = candles.get(i);
+
+                //判断是否是在活跃时间内
+                if(!judgeActivetime(activeTimes,candle)){
+                    continue;
+                }
 
                 CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
@@ -404,5 +410,55 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         }
 
         return currentProcess;
+    }
+
+    //判断是否是在活跃时间内
+    Boolean judgeActivetime(List<BaseStrategyFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle){
+
+        //如果没有活跃时间集合，则默认返回true
+        if(activeTimes == null || activeTimes.size()<=0){
+            return true;
+        }
+
+        if(candle == null){
+            return false;
+        }
+
+        //获取开始时间
+        Long from = candle.getFrom();
+        if(from == null){
+            return false;
+        }
+
+        //获取开始时间日期字符串
+        String fromString = DateUtil.timeStampToDateString(from*1000);
+        if(fromString == null){
+            return false;
+        }
+
+        //只获取时分秒
+        String hmsString = fromString.substring(fromString.indexOf(" ")+1,fromString.length());
+        if(hmsString == null){
+            return false;
+        }
+
+        //遍历活跃时间集合
+        for(BaseStrategyFilter.ActiveTime activeTime : activeTimes){
+            String startTimeString = activeTime.getActiveStartTimeString();
+            if(startTimeString == null){
+                continue;
+            }
+
+            String endTimeString = activeTime.getActiveEndTimeString();
+            if(endTimeString == null){
+                continue;
+            }
+
+            if(hmsString.compareTo(startTimeString) > 0 && hmsString.compareTo(endTimeString) < 0){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
