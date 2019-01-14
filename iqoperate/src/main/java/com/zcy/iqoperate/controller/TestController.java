@@ -19,7 +19,7 @@ public class TestController {
     WebsocketService websocketService;
 
     @GetMapping("/test")
-    public void test(){
+    public Object test(){
         //获取时间点id
 /*        Long currentId = IqUtil.getCurrentId();
 
@@ -34,15 +34,16 @@ public class TestController {
                 currentId);*/
 
         Long currentId = IqUtil.getCurrentId();
+        return currentId;
 
-        GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
+/*        GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
                 "112_233",
                 1,
                 60,
                 currentId-1000,
                 currentId);
 
-        websocketService.sendMessage(getCandlesRequest);
+        websocketService.sendMessage(getCandlesRequest);*/
     }
 
 }
