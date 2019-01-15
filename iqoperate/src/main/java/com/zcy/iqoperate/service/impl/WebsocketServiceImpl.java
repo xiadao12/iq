@@ -29,7 +29,7 @@ public class WebsocketServiceImpl implements WebsocketService {
         if(object instanceof String){
             message = object.toString();
         }else {
-            message = JsonUtil.ObjectToJson(object);
+            message = JsonUtil.ObjectToJsonString(object);
         }
         return websocketFeign.sendMessage(message);
     }

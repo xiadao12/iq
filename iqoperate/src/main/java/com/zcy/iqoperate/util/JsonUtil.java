@@ -15,7 +15,7 @@ public class JsonUtil {
      * @return
      * @throws Exception
      */
-    public static String ObjectToJson(Object object) {
+    public static String ObjectToJsonString(Object object) {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = null;
         try {

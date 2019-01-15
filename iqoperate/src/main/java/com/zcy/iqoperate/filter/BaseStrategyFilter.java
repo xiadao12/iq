@@ -11,11 +11,14 @@ public class BaseStrategyFilter {
     //外汇id
     private Integer activeId;
 
-    //查询的开始日期 2019-01-01 22:00:00
+    //蜡烛图天数
+    private Integer candleDays;
+
+/*    //查询的开始日期 2019-01-01 22:00:00
     private String startDateString;
 
     //查询的开始日期 2019-01-01 22:00:00
-    private String endDateString;
+    private String endDateString;*/
 
     //内部类，活跃时间
     /*
@@ -40,28 +43,20 @@ public class BaseStrategyFilter {
         this.activeId = activeId;
     }
 
-    public String getStartDateString() {
-        return startDateString;
-    }
-
-    public void setStartDateString(String startDateString) {
-        this.startDateString = startDateString;
-    }
-
-    public String getEndDateString() {
-        return endDateString;
-    }
-
-    public void setEndDateString(String endDateString) {
-        this.endDateString = endDateString;
-    }
-
     public List<ActiveTime> getActiveTimes() {
         return activeTimes;
     }
 
     public void setActiveTimes(List<ActiveTime> activeTimes) {
         this.activeTimes = activeTimes;
+    }
+
+    public Integer getCandleDays() {
+        return candleDays;
+    }
+
+    public void setCandleDays(Integer candleDays) {
+        this.candleDays = candleDays;
     }
 
     public static class ActiveTime{

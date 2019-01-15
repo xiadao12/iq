@@ -1,5 +1,6 @@
 package com.zcy.iqoperate.service;
 
+import com.zcy.iqoperate.core.BtResult;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public interface TryStrategyService {
      * 执行
      * @param strategyFilterObject
      */
-    void execute(Object strategyFilterObject);
+    BtResult execute(Object strategyFilterObject);
 
     /**
      * 根据返回的蜡烛图尝试策略

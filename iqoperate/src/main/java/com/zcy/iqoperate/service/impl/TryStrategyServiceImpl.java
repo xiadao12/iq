@@ -1,5 +1,6 @@
 package com.zcy.iqoperate.service.impl;
 
+import com.zcy.iqoperate.core.BtResult;
 import com.zcy.iqoperate.filter.BaseStrategyFilter;
 import com.zcy.iqoperate.filter.LongStrategyFilter;
 import com.zcy.iqoperate.model.CandleMessage;
@@ -27,7 +28,13 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     private Object strategyFilterObject;
 
     @Autowired
-    WebsocketService websocketService;
+    private WebsocketService websocketService;
+
+    //汇总分批查询到的蜡烛图
+    private List<CandlesResponse.Candle> allCandles = new ArrayList<>();
+
+    //查询天数
+    private Integer candleDays;
 
     /**
      * 执行
@@ -35,31 +42,59 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      * @param strategyFilterObject
      */
     @Override
-    public void execute(Object strategyFilterObject) {
+    public BtResult execute(Object strategyFilterObject) {
+
+        //清空蜡烛图集合
+        allCandles.clear();
+
+        //每个蜡烛图秒数
+        Integer candleSize = 60;
+
+        //初始化传入参数
         this.strategyFilterObject = strategyFilterObject;
 
-        BaseStrategyFilter baseStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
+        LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
+        if (longStrategyFilter == null) {
+            return BtResult.ERROR("解析参数失败");
+        }
 
         //外汇id
-        Integer activeId = baseStrategyFilter.getActiveId();
+        Integer activeId = longStrategyFilter.getActiveId();
+        if (activeId == null) {
+            return BtResult.ERROR("未传activeId");
+        }
 
-        //查询的开始日期 2019-01-01 22:00:00
-        String startDateString = baseStrategyFilter.getStartDateString();
-
-        //查询的开始日期 2019-01-01 22:00:00
-        String endDateString = baseStrategyFilter.getEndDateString();
+        //初始化查询天数
+        candleDays = longStrategyFilter.getCandleDays();
+        if (candleDays == null) {
+            return BtResult.ERROR("未传candleDays");
+        }
 
         //Long currentId = IqUtil.getCurrentId();
         Long currentId = 447397L;
 
-        GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
-                "112_233",
-                activeId,
-                60,
-                currentId - 1000,
-                currentId);
+        //id跳过个数
+        Integer skipIdSize = 720;
 
-        websocketService.sendMessage(getCandlesRequest);
+        currentId = currentId - candleDays * 720;
+
+        String request_id = String.valueOf(System.currentTimeMillis());
+
+        for (int i = 0; i < candleDays; i++) {
+
+            GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
+                    request_id,
+                    activeId,
+                    candleSize,
+                    currentId - skipIdSize,
+                    currentId);
+
+            websocketService.sendMessage(getCandlesRequest);
+
+            currentId = currentId + skipIdSize;
+        }
+
+        return BtResult.OK();
     }
 
     /**
@@ -75,7 +110,15 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             return;
         }
 
-        strategyLong(candles);
+        allCandles.addAll(candles);
+
+        //查询天数自减，
+        candleDays--;
+
+        //直到0时说明所有蜡烛信息收集完毕
+        if (candleDays.equals(0)) {
+            strategyLong(allCandles);
+        }
     }
 
     /**
@@ -88,7 +131,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
 
         //活跃时间
-        List<BaseStrategyFilter.ActiveTime> activeTimes = longStrategyFilter.getActiveTimes();
+        //List<BaseStrategyFilter.ActiveTime> activeTimes = longStrategyFilter.getActiveTimes();
 
         //因子最小值
         BigDecimal startFactor = longStrategyFilter.getStartFactor();
@@ -102,70 +145,97 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //跳过个数再获取结果
         Integer skipSize = longStrategyFilter.getSkipSize();
 
+        //遍历时间,一个小时为间隔
+        //活跃时间
+        List<List<BaseStrategyFilter.ActiveTime>> allActiveTime = new ArrayList<>();
+        for (int i = 0; i <= 9; i++) {
+            BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+            activeTime.setActiveStartTimeString("0" + i + ":00:00");
+            activeTime.setActiveEndTimeString("0" + i + ":59:59");
+
+            List<BaseStrategyFilter.ActiveTime> activeTimes = new ArrayList<>();
+            activeTimes.add(activeTime);
+
+            allActiveTime.add(activeTimes);
+        }
+        for (int i = 10; i <= 23; i++) {
+            BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+            activeTime.setActiveStartTimeString(i + ":00:00");
+            activeTime.setActiveEndTimeString(i + ":59:59");
+
+            List<BaseStrategyFilter.ActiveTime> activeTimes = new ArrayList<>();
+            activeTimes.add(activeTime);
+
+            allActiveTime.add(activeTimes);
+        }
+
         //遍历起止因子
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
-            System.out.println();
-            System.out.println("计算因子为：" + factor);
+            for (List<BaseStrategyFilter.ActiveTime> activeTimes : allActiveTime) {
 
-            //记录输赢的次数
-            Integer winNum = 0;
-            Integer lostNum = 0;
+                System.out.println();
+                System.out.println("计算因子为：" + factor);
 
-            //记录赢输的时间点
-            List winTimeList = new ArrayList<>();
-            List lostTimeList = new ArrayList<>();
+                //记录输赢的次数
+                Integer winNum = 0;
+                Integer lostNum = 0;
 
-            for (int i = 0; i < candles.size() - 1 - skipSize; i++) {
-                CandlesResponse.Candle candle = candles.get(i);
+                //记录赢输的时间点
+                List winTimeList = new ArrayList<>();
+                List lostTimeList = new ArrayList<>();
 
-                //判断是否是在活跃时间内
-                if(!judgeActivetime(activeTimes,candle)){
-                    continue;
-                }
+                for (int i = 0; i < candles.size() - 1 - skipSize; i++) {
+                    CandlesResponse.Candle candle = candles.get(i);
 
-                CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+                    //判断是否是在活跃时间内
+                    if (!judgeActivetime(activeTimes, candle)) {
+                        continue;
+                    }
 
-                BigDecimal open = candle.getOpen();
-                BigDecimal entity = candleMessage.getEntity();
+                    CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
-                //获取开始时间
-                String fromString = DateUtil.timeStampToDateString(candle.getFrom() * 1000 + 60 * 1000);
+                    BigDecimal open = candle.getOpen();
+                    BigDecimal entity = candleMessage.getEntity();
 
-                //判断实体是否足够长
-                if (entity.compareTo(open.multiply(factor)) > 0) {
-                    //获取结果蜡烛图（跳过个数为skip）
-                    CandlesResponse.Candle resultCandle = candles.get(i + 1 + skipSize);
+                    //获取开始时间
+                    String fromString = DateUtil.timeStampToDateString(candle.getFrom() * 1000 + 60 * 1000);
 
-                    //获取蜡烛涨跌
-                    Integer trend = candleMessage.getTrend();
+                    //判断实体是否足够长
+                    if (entity.compareTo(open.multiply(factor)) > 0) {
+                        //获取结果蜡烛图（跳过个数为skip）
+                        CandlesResponse.Candle resultCandle = candles.get(i + 1 + skipSize);
 
-                    //如果长蜡烛是涨
-                    if (trend > 0) {
-                        if (resultCandle.getClose().compareTo(candle.getClose()) < 0) {
-                            winNum++;
-                            winTimeList.add(fromString);
+                        //获取蜡烛涨跌
+                        Integer trend = candleMessage.getTrend();
+
+                        //如果长蜡烛是涨
+                        if (trend > 0) {
+                            if (resultCandle.getClose().compareTo(candle.getClose()) < 0) {
+                                winNum++;
+                                winTimeList.add(fromString);
+                            } else {
+                                lostNum++;
+                                lostTimeList.add(fromString);
+                            }
                         } else {
-                            lostNum++;
-                            lostTimeList.add(fromString);
-                        }
-                    } else {
-                        if (resultCandle.getClose().compareTo(candle.getClose()) > 0) {
-                            winNum++;
-                            winTimeList.add(fromString);
-                        } else {
-                            lostNum++;
-                            lostTimeList.add(fromString);
+                            if (resultCandle.getClose().compareTo(candle.getClose()) > 0) {
+                                winNum++;
+                                winTimeList.add(fromString);
+                            } else {
+                                lostNum++;
+                                lostTimeList.add(fromString);
+                            }
                         }
                     }
+
                 }
 
+                System.out.println("winNum = " + winNum);
+                System.out.println("lostNum = " + lostNum);
+                System.out.println("winTimeList = " + winTimeList);
+                System.out.println("lostTimeList = " + lostTimeList);
             }
-
-            System.out.println("winNum = " + winNum);
-            System.out.println("lostNum = " + lostNum);
-            System.out.println("winTimeList = " + winTimeList);
-            System.out.println("lostTimeList = " + lostTimeList);
         }
     }
 
@@ -413,48 +483,48 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     }
 
     //判断是否是在活跃时间内
-    Boolean judgeActivetime(List<BaseStrategyFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle){
+    Boolean judgeActivetime(List<BaseStrategyFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle) {
 
         //如果没有活跃时间集合，则默认返回true
-        if(activeTimes == null || activeTimes.size()<=0){
+        if (activeTimes == null || activeTimes.size() <= 0) {
             return true;
         }
 
-        if(candle == null){
+        if (candle == null) {
             return false;
         }
 
         //获取开始时间
         Long from = candle.getFrom();
-        if(from == null){
+        if (from == null) {
             return false;
         }
 
         //获取开始时间日期字符串
-        String fromString = DateUtil.timeStampToDateString(from*1000);
-        if(fromString == null){
+        String fromString = DateUtil.timeStampToDateString(from * 1000);
+        if (fromString == null) {
             return false;
         }
 
         //只获取时分秒
-        String hmsString = fromString.substring(fromString.indexOf(" ")+1,fromString.length());
-        if(hmsString == null){
+        String hmsString = fromString.substring(fromString.indexOf(" ") + 1, fromString.length());
+        if (hmsString == null) {
             return false;
         }
 
         //遍历活跃时间集合
-        for(BaseStrategyFilter.ActiveTime activeTime : activeTimes){
+        for (BaseStrategyFilter.ActiveTime activeTime : activeTimes) {
             String startTimeString = activeTime.getActiveStartTimeString();
-            if(startTimeString == null){
+            if (startTimeString == null) {
                 continue;
             }
 
             String endTimeString = activeTime.getActiveEndTimeString();
-            if(endTimeString == null){
+            if (endTimeString == null) {
                 continue;
             }
 
-            if(hmsString.compareTo(startTimeString) > 0 && hmsString.compareTo(endTimeString) < 0){
+            if (hmsString.compareTo(startTimeString) > 0 && hmsString.compareTo(endTimeString) < 0) {
                 return true;
             }
         }
