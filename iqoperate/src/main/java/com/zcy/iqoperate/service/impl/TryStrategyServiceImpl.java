@@ -172,6 +172,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //遍历起止因子
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
+            //遍历活跃时间
             for (List<BaseStrategyFilter.ActiveTime> activeTimes : allActiveTime) {
 
                 System.out.println();
