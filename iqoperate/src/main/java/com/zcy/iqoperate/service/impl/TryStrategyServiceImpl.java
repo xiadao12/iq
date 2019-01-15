@@ -71,7 +71,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         }
 
         //Long currentId = IqUtil.getCurrentId();
-        Long currentId = 447397L;
+        //Long currentId = 447397L;
+        Long currentId = 449510L;
 
         //id跳过个数
         Integer skipIdSize = 720;
@@ -169,6 +170,13 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             allActiveTime.add(activeTimes);
         }
 
+/*        BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+        activeTime.setActiveStartTimeString("22:00:00");
+        activeTime.setActiveEndTimeString("22:59:59");
+        List<BaseStrategyFilter.ActiveTime> activeTimesTemp = new ArrayList<>();
+        activeTimesTemp.add(activeTime);
+        allActiveTime.add(activeTimesTemp);*/
+
         //遍历起止因子
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
@@ -177,6 +185,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
                 System.out.println();
                 System.out.println("计算因子为：" + factor);
+                System.out.println("活跃时间为：" + activeTimes.get(0).getActiveStartTimeString() + " " + activeTimes.get(0).getActiveEndTimeString());
 
                 //记录输赢的次数
                 Integer winNum = 0;
