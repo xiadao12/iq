@@ -42,6 +42,7 @@ public class DealMessageServiceImpl implements DealMessageService {
                 TimeSyncResponse timeSyncResponse = objectMapper.readValue(message,TimeSyncResponse.class);
                 dealTimeSync(timeSyncResponse);
             }else if(message.contains("candles")){
+                //获取蜡烛集合
                 CandlesResponse candlesResponse = objectMapper.readValue(message,CandlesResponse.class);
                 dealCandles(candlesResponse);
             }
