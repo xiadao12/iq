@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * create date : 2019/1/7
@@ -118,7 +120,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
         //直到0时说明所有蜡烛信息收集完毕
         if (candleDays.equals(0)) {
-            strategyLong(allCandles);
+            //strategyLong(allCandles);
+            strategyContinuous(allCandles);
         }
     }
 
@@ -237,6 +240,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                                 lostTimeList.add(fromString);
                             }
                         }
+
+                        i = i + skipSize;
                     }
 
                 }
@@ -299,6 +304,68 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         System.out.println("lostNum = " + lostNum);
         System.out.println("winTimeList = " + winTimeList);
         System.out.println("lostTimeList = " + lostTimeList);
+    }
+
+    /**
+     * 测试最多连续个数
+     */
+    public void strategyContinuous(List<CandlesResponse.Candle> candles) {
+
+        //上一个涨与跌
+        Integer preTrend = 1;
+
+        //记录最多连续蜡烛图个数
+        Integer maxSum = 0;
+
+        //记录最多连续蜡烛图的To
+        Long maxSumTo = 0L;
+
+        Map<Integer, List<String>> sumListMap = new HashMap<>();
+        Map<Integer, Integer> sumMap = new HashMap<>();
+
+        List<CandlesResponse.Candle> candlesResult = new ArrayList<>();
+
+        for (CandlesResponse.Candle candle : candles) {
+            CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+            //当前涨跌
+            Integer currentTrend = candleMessage.getTrend();
+
+            //如果和上一个一样，获取是平的
+            if (currentTrend.equals(0) || currentTrend.equals(preTrend)) {
+                candlesResult.add(candle);
+
+                if (candlesResult.size() > maxSum) {
+                    maxSumTo = candle.getTo();
+                    maxSum = candlesResult.size();
+                }
+            } else {
+
+                if (sumMap.get(candlesResult.size()) == null) {
+                    sumMap.put(candlesResult.size(), 1);
+                } else {
+                    sumMap.put(candlesResult.size(), sumMap.get(candlesResult.size()) + 1);
+                }
+
+                if (sumListMap.get(candlesResult.size()) == null) {
+                    List<String> ss = new ArrayList<>();
+                    ss.add(DateUtil.timeStampToDateString(candle.getTo() * 1000));
+                    sumListMap.put(candlesResult.size(), ss);
+                } else {
+                    List<String> ss = sumListMap.get(candlesResult.size());
+                    ss.add(DateUtil.timeStampToDateString(candle.getTo() * 1000));
+                    sumListMap.put(candlesResult.size(), ss);
+                }
+
+                candlesResult.clear();
+            }
+
+            preTrend = currentTrend;
+        }
+
+        System.out.println("maxSum = " + maxSum);
+        System.out.println("maxSumTo = " + DateUtil.timeStampToDateString(maxSumTo * 1000));
+        System.out.println("maxSumTo = " + JsonUtil.ObjectToJsonString(sumMap));
+        System.out.println("maxSumTo = " + JsonUtil.ObjectToJsonString(sumListMap));
     }
 
     /**

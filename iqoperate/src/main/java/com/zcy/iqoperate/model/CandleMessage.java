@@ -42,9 +42,8 @@ public class CandleMessage {
         BigDecimal min = candle.getMin();
         BigDecimal max = candle.getMax();
 
-        //判断是涨或跌
+        //判断是涨或跌,1涨  0平  -1跌
         Integer trend = close.compareTo(open);
-
         //实体最小值
         BigDecimal lower = new BigDecimal(0);
         //实体最大值
