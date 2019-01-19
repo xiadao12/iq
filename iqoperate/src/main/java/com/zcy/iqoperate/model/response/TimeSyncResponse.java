@@ -2,8 +2,8 @@ package com.zcy.iqoperate.model.response;
 
 /**
  * 实时获取服务器时间
- *{"name":"timeSync","msg":1546861675261}
- *
+ * {"name":"timeSync","msg":1546861675261}
+ * <p>
  * create date : 2019/1/7
  */
 public class TimeSyncResponse {

@@ -22,10 +22,11 @@ public class WebsocketController {
 
     /**
      * 处理信息
+     *
      * @param message
      */
     @PostMapping("/receiveMessage")
-    public void receiveMessage(String message){
+    public void receiveMessage(String message) {
         logger.info("接收到消息并开始处理：" + message);
         dealMessageService.dealMessage(message);
     }

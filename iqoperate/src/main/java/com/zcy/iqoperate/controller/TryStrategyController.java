@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 尝试策略
- *
+ * <p>
  * create date : 2019/1/11
  */
 @RestController
@@ -22,11 +22,12 @@ public class TryStrategyController {
 
     /**
      * 执行
+     *
      * @param object
      * @return
      */
     @PostMapping("/execute")
-    public BtResult execute(@RequestBody Object object){
+    public BtResult execute(@RequestBody Object object) {
         tryStrategyService.execute(object);
         return null;
     }

@@ -7,35 +7,35 @@ import java.util.List;
 /**
  * 蜡烛图集合
  * {"name":"candles","request_id":"1546867719_8254357746","msg":{"candles":[{"id":440897,"from":1546867560,"to":1546867620,"open":1.144935,"close":1.14492,"min":1.144875,"max":1.144995,"volume":292},{"id":440898,"from":1546867620,"to":1546867680,"open":1.14492,"close":1.14476,"min":1.144655,"max":1.14495,"volume":392}]},"status":2000}
- *
+ * <p>
  * {
- *     "name":"candles",
- *     "request_id":"1546867719_8254357746",
- *     "msg":{
- *         "candles":[
- *             {
- *                 "id":440897,
- *                 "from":1546867560,
- *                 "to":1546867620,
- *                 "open":1.144935,
- *                 "close":1.14492,
- *                 "min":1.144875,
- *                 "max":1.144995,
- *                 "volume":292
- *             },
- *             {
- *                 "id":440898,
- *                 "from":1546867620,
- *                 "to":1546867680,
- *                 "open":1.14492,
- *                 "close":1.14476,
- *                 "min":1.144655,
- *                 "max":1.14495,
- *                 "volume":392
- *             }
- *         ]
- *     },
- *     "status":2000
+ * "name":"candles",
+ * "request_id":"1546867719_8254357746",
+ * "msg":{
+ * "candles":[
+ * {
+ * "id":440897,
+ * "from":1546867560,
+ * "to":1546867620,
+ * "open":1.144935,
+ * "close":1.14492,
+ * "min":1.144875,
+ * "max":1.144995,
+ * "volume":292
+ * },
+ * {
+ * "id":440898,
+ * "from":1546867620,
+ * "to":1546867680,
+ * "open":1.14492,
+ * "close":1.14476,
+ * "min":1.144655,
+ * "max":1.14495,
+ * "volume":392
+ * }
+ * ]
+ * },
+ * "status":2000
  * }
  * create date : 2019/1/7
  */
@@ -81,7 +81,7 @@ public class CandlesResponse {
     /**
      * 内部类
      */
-    public static class Msg{
+    public static class Msg {
         List<Candle> candles = new ArrayList<>();
 
         public List<Candle> getCandles() {
@@ -93,7 +93,7 @@ public class CandlesResponse {
         }
     }
 
-    public static class Candle{
+    public static class Candle {
         private Long id;
         private Long from;
         private Long to;

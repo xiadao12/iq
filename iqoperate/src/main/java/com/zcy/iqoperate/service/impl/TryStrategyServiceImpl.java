@@ -90,7 +90,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer skipIdSize = halfdayIdSize;
 
         //获取candles循环次数 = candleDays * 2
-        candlesCycleSize  = candleDays * 2;
+        candlesCycleSize = candleDays * 2;
 
         //计算出第一个请求的id
         currentId = currentId - candlesCycleSize * halfdayIdSize;
@@ -129,19 +129,19 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         }
 
         CandlesResponse.Msg msg = candlesResponse.getMsg();
-        if(msg == null){
+        if (msg == null) {
             return;
         }
 
-        List<CandlesResponse.Candle> candles =  msg.getCandles();
-        if(candles == null || candles.size() <=0){
+        List<CandlesResponse.Candle> candles = msg.getCandles();
+        if (candles == null || candles.size() <= 0) {
             return;
         }
 
         //candles去除第一个，解决造成重复的问题
         candles.remove(0);
 
-        candlesMap.put(candlesResponse.getRequest_id(),candles);
+        candlesMap.put(candlesResponse.getRequest_id(), candles);
 
         //查询天数自减，
         candlesCycleSize--;
@@ -151,7 +151,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             //汇总分批查询到的蜡烛图
             List<CandlesResponse.Candle> allCandles = new ArrayList<>();
-            for(String requestId : candlesRequestIds){
+            for (String requestId : candlesRequestIds) {
                 allCandles.addAll(candlesMap.get(requestId));
             }
 

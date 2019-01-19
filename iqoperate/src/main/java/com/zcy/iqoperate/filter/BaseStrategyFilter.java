@@ -73,7 +73,7 @@ public class BaseStrategyFilter {
     /**
      * 内部类
      */
-    public static class ActiveTime{
+    public static class ActiveTime {
 
         //每天活跃开始时间 22:00:00
         private String activeStartTimeString;

@@ -2,11 +2,11 @@ package com.zcy.iqoperate.model.request;
 
 /**
  * 实时请求蜡烛图
- *
+ * <p>
  * create date : 2019/1/6
  */
 //{"name":"subscribeMessage","request_id":"s_71","msg":{"name":"candle-generated","params":{"routingFilters":{"active_id":76,"size":1}}}}
-public class CandleGeneratedRequest{
+public class CandleGeneratedRequest {
 
     private final String name = "subscribeMessage";
     private String request_id;
@@ -20,6 +20,7 @@ public class CandleGeneratedRequest{
 
     /**
      * 构造方法
+     *
      * @param request_id
      * @param msg_params_routingFilters_active_id
      * @param msg_params_routingFilters_size

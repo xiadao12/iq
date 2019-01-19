@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 
 /**
  * 实时蜡烛图
- *
+ * <p>
  * create date : 2019/1/6
  */
-public class CandleGeneratedResponse{
+public class CandleGeneratedResponse {
     private String name;
     //内部类
     private Msg msg;

@@ -18,6 +18,7 @@ public class WebsocketServiceImpl implements WebsocketService {
 
     /**
      * 向websocket发送消息
+     *
      * @return
      */
     @Override
@@ -26,9 +27,9 @@ public class WebsocketServiceImpl implements WebsocketService {
         String message = "";
 
         //判断参数是不是String类型的
-        if(object instanceof String){
+        if (object instanceof String) {
             message = object.toString();
-        }else {
+        } else {
             message = JsonUtil.ObjectToJsonString(object);
         }
         return websocketFeign.sendMessage(message);

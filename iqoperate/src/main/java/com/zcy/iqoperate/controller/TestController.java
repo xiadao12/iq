@@ -19,7 +19,7 @@ public class TestController {
     WebsocketService websocketService;
 
     @GetMapping("/test")
-    public Object test(){
+    public Object test() {
         //获取时间点id
 /*        Long currentId = IqUtil.getCurrentId();
 

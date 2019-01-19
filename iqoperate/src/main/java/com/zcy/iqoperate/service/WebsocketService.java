@@ -11,6 +11,7 @@ public interface WebsocketService {
 
     /**
      * 向websocket发送消息
+     *
      * @return
      */
     BtResult sendMessage(Object message);

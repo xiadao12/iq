@@ -2,7 +2,7 @@ package com.zcy.iqoperate.model.request;
 
 /**
  * 身份验证请求
- *
+ * <p>
  * create date : 2019/1/7
  */
 //{"name":"ssid","request_id":"1546751287_1049553889","msg":"a87f0428c732dbb972c114dfd5ed6981"}

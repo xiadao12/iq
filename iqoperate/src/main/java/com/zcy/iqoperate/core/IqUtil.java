@@ -25,17 +25,17 @@ public class IqUtil {
     /**
      * 获取当前时间的id，对应下面的from_id和to_id
      * //{"name":"sendMessage","request_id":"104","msg":{"name":"get-candles","version":"2.0","body":{"active_id":4,"size":60,"from_id":440428,"to_id":440453,"only_closed":true}}}
-     * @return
-     * 计算方法：（当前系统秒数 - 1520413740） / 60
+     *
+     * @return 计算方法：（当前系统秒数 - 1520413740） / 60
      */
-    public static Long getCurrentId(){
+    public static Long getCurrentId() {
 
         final Long factorNum = 1520413740L;
 
         //获取服务器毫秒数
         Long currentTimeSync = BaseServiceImpl.timeSync;
 
-        while (currentTimeSync == null){
+        while (currentTimeSync == null) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -43,6 +43,6 @@ public class IqUtil {
             }
         }
 
-        return (currentTimeSync/1000-1520413740) / 60;
+        return (currentTimeSync / 1000 - 1520413740) / 60;
     }
 }

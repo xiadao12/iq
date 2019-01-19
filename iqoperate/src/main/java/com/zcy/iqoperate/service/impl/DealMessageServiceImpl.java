@@ -25,6 +25,7 @@ public class DealMessageServiceImpl implements DealMessageService {
 
     /**
      * 处理接收到的信息
+     *
      * @param message
      */
     @Override
@@ -36,13 +37,13 @@ public class DealMessageServiceImpl implements DealMessageService {
                 //实时蜡烛图信息
                 CandleGeneratedResponse candleGeneratedResponse = objectMapper.readValue(message, CandleGeneratedResponse.class);
                 dealCandleGenerated(candleGeneratedResponse);
-            }else if(message.contains("timeSync")){
+            } else if (message.contains("timeSync")) {
                 //服务器时间（毫秒）
-                TimeSyncResponse timeSyncResponse = objectMapper.readValue(message,TimeSyncResponse.class);
+                TimeSyncResponse timeSyncResponse = objectMapper.readValue(message, TimeSyncResponse.class);
                 dealTimeSync(timeSyncResponse);
-            }else if(message.contains("candles")){
+            } else if (message.contains("candles")) {
                 //获取蜡烛集合
-                CandlesResponse candlesResponse = objectMapper.readValue(message,CandlesResponse.class);
+                CandlesResponse candlesResponse = objectMapper.readValue(message, CandlesResponse.class);
                 dealCandles(candlesResponse);
             }
         } catch (IOException e) {
@@ -52,17 +53,18 @@ public class DealMessageServiceImpl implements DealMessageService {
 
     /**
      * 处理蜡烛图消息
+     *
      * @param candleGeneratedResponse
      */
     public void dealCandleGenerated(CandleGeneratedResponse candleGeneratedResponse) {
 
         //判断参数
-        if(candleGeneratedResponse == null){
+        if (candleGeneratedResponse == null) {
             return;
         }
 
         //如果是第一次赋值
-        if(preCandleGeneratedResponse == null){
+        if (preCandleGeneratedResponse == null) {
             preCandleGeneratedResponse = candleGeneratedResponse;
             return;
         }
@@ -72,7 +74,7 @@ public class DealMessageServiceImpl implements DealMessageService {
         //当前蜡烛图msg信息
         CandleGeneratedResponse.Msg msg = candleGeneratedResponse.getMsg();
         //如果from相同，则说明还在一个蜡烛图中。不相同则说明进入到了下一个蜡烛图
-        if(!preMsg.getFrom().equals(msg.getFrom())){
+        if (!preMsg.getFrom().equals(msg.getFrom())) {
             System.out.println("时间：" + preMsg.getFrom());
             System.out.println("本地：" + System.currentTimeMillis());
             System.out.println("实体：" + preMsg.getOpen() + "  " + preMsg.getClose());
@@ -84,11 +86,12 @@ public class DealMessageServiceImpl implements DealMessageService {
 
     /**
      * 处理服务器时间戳
+     *
      * @param timeSyncResponse
      */
     public void dealTimeSync(TimeSyncResponse timeSyncResponse) {
 
-        if(timeSyncResponse == null){
+        if (timeSyncResponse == null) {
             return;
         }
 
@@ -97,10 +100,11 @@ public class DealMessageServiceImpl implements DealMessageService {
 
     /**
      * 处理蜡烛图集合
+     *
      * @param candlesResponse
      */
     public void dealCandles(CandlesResponse candlesResponse) {
-        if(candlesResponse == null){
+        if (candlesResponse == null) {
             return;
         }
 

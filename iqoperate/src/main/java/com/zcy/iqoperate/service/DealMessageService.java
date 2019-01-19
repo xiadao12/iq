@@ -8,6 +8,7 @@ public interface DealMessageService {
 
     /**
      * 处理接收到的信息
+     *
      * @param message
      */
     void dealMessage(String message);
