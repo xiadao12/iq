@@ -17,6 +17,9 @@ public class StrategyBaseFilter {
     //当前id
     private Long currentId;
 
+    //是否从文件中读取蜡烛图
+    private Boolean readCandlesFromFile = false;
+
 /*    //查询的开始日期 2019-01-01 22:00:00
     private String startDateString;
 
@@ -68,6 +71,14 @@ public class StrategyBaseFilter {
 
     public void setCurrentId(Long currentId) {
         this.currentId = currentId;
+    }
+
+    public Boolean getReadCandlesFromFile() {
+        return readCandlesFromFile;
+    }
+
+    public void setReadCandlesFromFile(Boolean readCandlesFromFile) {
+        this.readCandlesFromFile = readCandlesFromFile;
     }
 
     /**
