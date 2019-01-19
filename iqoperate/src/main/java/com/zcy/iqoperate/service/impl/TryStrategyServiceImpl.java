@@ -1,13 +1,14 @@
 package com.zcy.iqoperate.service.impl;
 
 import com.zcy.iqoperate.core.BtResult;
-import com.zcy.iqoperate.filter.StrategyLongFilter;
+import com.zcy.iqoperate.filter.StrategyContinuousFilter;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
 import com.zcy.iqoperate.strategy.StrategyContinuous;
 import com.zcy.iqoperate.util.DateUtil;
+import com.zcy.iqoperate.util.FileUtil;
 import com.zcy.iqoperate.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,19 +62,36 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //初始化传入参数
         this.strategyFilterObject = strategyFilterObject;
 
-        StrategyLongFilter strategyLongFilter = JsonUtil.convertValue(strategyFilterObject, StrategyLongFilter.class);
-        if (strategyLongFilter == null) {
+        StrategyContinuousFilter strategyContinuousFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousFilter.class);
+        if (strategyContinuousFilter == null) {
             return BtResult.ERROR("解析参数失败");
         }
 
+        //如果是从文件中读取candles
+        if(strategyContinuousFilter.getReadCandlesFromFile()){
+
+            //从文件读取蜡烛集合
+            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles.json", List.class);
+
+            //将读取的蜡烛类型转换
+            List<CandlesResponse.Candle> allCandles = new ArrayList<>();
+            for(Map map : fileCandlesMapList){
+                CandlesResponse.Candle candle = JsonUtil.convertValue(map, CandlesResponse.Candle.class);
+                allCandles.add(candle);
+            }
+
+            strategyContinuous.execute(allCandles, strategyFilterObject);
+            return BtResult.OK();
+        }
+
         //外汇id
-        Integer activeId = strategyLongFilter.getActiveId();
+        Integer activeId = strategyContinuousFilter.getActiveId();
         if (activeId == null) {
             return BtResult.ERROR("未传activeId");
         }
 
         //初始化查询天数
-        Integer candleDays = strategyLongFilter.getCandleDays();
+        Integer candleDays = strategyContinuousFilter.getCandleDays();
         if (candleDays == null) {
             return BtResult.ERROR("未传candleDays");
         }
@@ -81,7 +99,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //Long currentId = IqUtil.getCurrentId();
         //Long currentId = 447397L;
         //Long currentId = 226255L;
-        Long currentId = strategyLongFilter.getCurrentId();
+        Long currentId = strategyContinuousFilter.getCurrentId();
 
         // 12*60
         Integer halfdayIdSize = 720;
@@ -161,7 +179,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             System.out.println("所有蜡烛图信息：" + JsonUtil.ObjectToJsonString(candles));
 
-            strategyContinuous.execute(allCandles);
+            FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(candles), "D:/iq","candles.json");
+            strategyContinuous.execute(allCandles, strategyFilterObject);
         }
     }
 }

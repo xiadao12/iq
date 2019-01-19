@@ -180,7 +180,7 @@ public class StrategyContinuous {
             candlesResult = new ArrayList<>();
         }
 
-        FileUtil.createJsonFile(content,"D:/iq","strateResult");
+        FileUtil.createJsonFile(content,"D:/iq","strateResult.json");
     }
 
 }

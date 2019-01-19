@@ -1,5 +1,7 @@
 package com.zcy.iqoperate.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 
 /**
@@ -8,13 +10,97 @@ import java.io.*;
 public class FileUtil {
 
     /**
+     * 创建文件
+     *
+     * @param content  字符串内容
+     * @param filePath 文件夹地址
+     * @param fileName 文件名
+     * @return 返回文件完整路径
+     */
+    public static String createFile(String content, String filePath, String fileName) {
+
+        if (content == null || filePath == null || fileName == null) {
+            throw new RuntimeException("创建文件缺少相应信息");
+        }
+
+        //转换分隔符
+        filePath = filePath.replace("\\", "/");
+
+        //文件的完整路径
+        String fileFullPath = filePath + "/" + fileName;
+
+        File file = new File(fileFullPath);
+
+        // 如果父目录不存在，创建父目录
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        //如果文件存在，则先将其删除
+        if (file.exists()) {
+            file.delete();
+        }
+
+        Writer write = null;
+
+        try {
+            //创建文件
+            file.createNewFile();
+
+            // 将格式化后的字符串写入文件
+            write = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            write.write(content);
+            write.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                write.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return fileFullPath;
+    }
+
+    /**
+     * 将json生成.json格式文件
+     */
+    public static String createJsonFile(String jsonString, String filePath, String fileName) {
+
+        if (jsonString.indexOf("'") != -1) {
+            //将单引号转义一下，因为JSON串中的字符串类型可以单引号引起来的
+            jsonString = jsonString.replaceAll("'", "\\'");
+        }
+        if (jsonString.indexOf("\"") != -1) {
+            //将双引号转义一下，因为JSON串中的字符串类型可以单引号引起来的
+            jsonString = jsonString.replaceAll("\"", "\\\"");
+        }
+
+        if (jsonString.indexOf("\r\n") != -1) {
+            //将回车换行转换一下，因为JSON串中字符串不能出现显式的回车换行
+            jsonString = jsonString.replaceAll("\r\n", "\\u000d\\u000a");
+        }
+        if (jsonString.indexOf("\n") != -1) {
+            //将换行转换一下，因为JSON串中字符串不能出现显式的换行
+            jsonString = jsonString.replaceAll("\n", "\\u000a");
+        }
+
+        // 格式化json字符串
+        jsonString = formatJson(jsonString);
+
+        return createFile(jsonString, filePath, fileName);
+    }
+
+    /**
      * 读取文件成string字符串
+     *
      * @param filePath 如："D:/iq/candles.json"
      * @return
      */
-    public static String  readFileToString(String filePath) {
-        String ss = "dd";
-        System.out.println(ss.equals(null));
+    public static String readFileToString(String filePath) {
 
         BufferedReader bufferedReader = null;// 读取原始json文件
         String content = "";
@@ -40,60 +126,24 @@ public class FileUtil {
     }
 
     /**
-     * 将json生成.json格式文件
+     * 读取文件成Object
+     * @param filePath
+     * @param classType
+     * @return
      */
-    public static boolean createJsonFile(String jsonString, String filePath, String fileName) {
-        // 标记文件生成是否成功
-        boolean flag = true;
+    public static Object readFileToObject(String filePath, Class classType) {
+        File file = new File("D:/iq/candles.json");
+        ObjectMapper mapper = new ObjectMapper();
 
-        // 拼接文件完整路径
-        String fullPath = filePath + File.separator + fileName + ".json";
-
-        // 生成json格式文件
+        //返回结果
+        Object object = null;
         try {
-            // 保证创建一个新文件
-            File file = new File(fullPath);
-            if (!file.getParentFile().exists()) { // 如果父目录不存在，创建父目录
-                file.getParentFile().mkdirs();
-            }
-            if (file.exists()) { // 如果已存在,删除旧文件
-                file.delete();
-            }
-            file.createNewFile();
-
-            if (jsonString.indexOf("'") != -1) {
-                //将单引号转义一下，因为JSON串中的字符串类型可以单引号引起来的
-                jsonString = jsonString.replaceAll("'", "\\'");
-            }
-            if (jsonString.indexOf("\"") != -1) {
-                //将双引号转义一下，因为JSON串中的字符串类型可以单引号引起来的
-                jsonString = jsonString.replaceAll("\"", "\\\"");
-            }
-
-            if (jsonString.indexOf("\r\n") != -1) {
-                //将回车换行转换一下，因为JSON串中字符串不能出现显式的回车换行
-                jsonString = jsonString.replaceAll("\r\n", "\\u000d\\u000a");
-            }
-            if (jsonString.indexOf("\n") != -1) {
-                //将换行转换一下，因为JSON串中字符串不能出现显式的换行
-                jsonString = jsonString.replaceAll("\n", "\\u000a");
-            }
-
-            // 格式化json字符串
-            jsonString = formatJson(jsonString);
-
-            // 将格式化后的字符串写入文件
-            Writer write = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-            write.write(jsonString);
-            write.flush();
-            write.close();
-        } catch (Exception e) {
-            flag = false;
+            object = mapper.readValue(file, classType);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // 返回是否成功的标记
-        return flag;
+        return object;
     }
 
     /**
