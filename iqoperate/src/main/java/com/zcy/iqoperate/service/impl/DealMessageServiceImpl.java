@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * create date : 2019/1/6
@@ -105,16 +104,6 @@ public class DealMessageServiceImpl implements DealMessageService {
             return;
         }
 
-        CandlesResponse.Msg msg = candlesResponse.getMsg();
-        if(msg == null){
-            return;
-        }
-
-        List<CandlesResponse.Candle> candles =  msg.getCandles();
-        if(candles == null || candles.size() <=0){
-            return;
-        }
-
-        tryStrategyService.strategy(candles);
+        tryStrategyService.strategy(candlesResponse);
     }
 }

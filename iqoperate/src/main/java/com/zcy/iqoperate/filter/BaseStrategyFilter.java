@@ -14,6 +14,9 @@ public class BaseStrategyFilter {
     //蜡烛图天数
     private Integer candleDays;
 
+    //当前id
+    private Long currentId;
+
 /*    //查询的开始日期 2019-01-01 22:00:00
     private String startDateString;
 
@@ -59,6 +62,17 @@ public class BaseStrategyFilter {
         this.candleDays = candleDays;
     }
 
+    public Long getCurrentId() {
+        return currentId;
+    }
+
+    public void setCurrentId(Long currentId) {
+        this.currentId = currentId;
+    }
+
+    /**
+     * 内部类
+     */
     public static class ActiveTime{
 
         //每天活跃开始时间 22:00:00

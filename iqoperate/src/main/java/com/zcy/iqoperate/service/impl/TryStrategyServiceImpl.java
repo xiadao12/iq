@@ -32,11 +32,14 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     @Autowired
     private WebsocketService websocketService;
 
-    //汇总分批查询到的蜡烛图
-    private List<CandlesResponse.Candle> allCandles = new ArrayList<>();
+    //获取candles循环次数 = candleDays * 2
+    private Integer candlesCycleSize;
 
-    //查询天数
-    private Integer candleDays;
+    //请求蜡烛图的id集合
+    private List<String> candlesRequestIds = new ArrayList<>();
+
+    //request_id与蜡烛集合的map
+    private Map<String, List<CandlesResponse.Candle>> candlesMap = new HashMap<>();
 
     /**
      * 执行
@@ -46,8 +49,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     @Override
     public BtResult execute(Object strategyFilterObject) {
 
-        //清空蜡烛图集合
-        allCandles.clear();
+        //清空请求蜡烛图的id集合
+        candlesRequestIds.clear();
+
+        //清空request_id与蜡烛集合的map
+        candlesMap.clear();
 
         //每个蜡烛图秒数
         Integer candleSize = 60;
@@ -67,23 +73,32 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         }
 
         //初始化查询天数
-        candleDays = longStrategyFilter.getCandleDays();
+        Integer candleDays = longStrategyFilter.getCandleDays();
         if (candleDays == null) {
             return BtResult.ERROR("未传candleDays");
         }
 
         //Long currentId = IqUtil.getCurrentId();
         //Long currentId = 447397L;
-        Long currentId = 449510L;
+        //Long currentId = 226255L;
+        Long currentId = longStrategyFilter.getCurrentId();
+
+        // 12*60
+        Integer halfdayIdSize = 720;
 
         //id跳过个数
-        Integer skipIdSize = 720;
+        Integer skipIdSize = halfdayIdSize;
 
-        currentId = currentId - candleDays * 720;
+        //获取candles循环次数 = candleDays * 2
+        candlesCycleSize  = candleDays * 2;
 
-        String request_id = String.valueOf(System.currentTimeMillis());
+        //计算出第一个请求的id
+        currentId = currentId - candlesCycleSize * halfdayIdSize;
 
-        for (int i = 0; i < candleDays; i++) {
+        for (int i = 0; i < candlesCycleSize; i++) {
+
+            String request_id = String.valueOf(System.currentTimeMillis() + i);
+            candlesRequestIds.add(request_id);
 
             GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
                     request_id,
@@ -103,25 +118,46 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     /**
      * 策略
      *
-     * @param candles
+     * @param candlesResponse
      */
     @Override
-    public void strategy(List<CandlesResponse.Candle> candles) {
+    public void strategy(CandlesResponse candlesResponse) {
 
         //判断传参
-        if (candles == null || candles.size() <= 0) {
+        if (candlesResponse == null) {
             return;
         }
 
-        allCandles.addAll(candles);
+        CandlesResponse.Msg msg = candlesResponse.getMsg();
+        if(msg == null){
+            return;
+        }
+
+        List<CandlesResponse.Candle> candles =  msg.getCandles();
+        if(candles == null || candles.size() <=0){
+            return;
+        }
+
+        //candles去除第一个，解决造成重复的问题
+        candles.remove(0);
+
+        candlesMap.put(candlesResponse.getRequest_id(),candles);
 
         //查询天数自减，
-        candleDays--;
+        candlesCycleSize--;
 
         //直到0时说明所有蜡烛信息收集完毕
-        if (candleDays.equals(0)) {
-            //strategyLong(allCandles);
-            strategyContinuous(allCandles);
+        if (candlesCycleSize.equals(0)) {
+
+            //汇总分批查询到的蜡烛图
+            List<CandlesResponse.Candle> allCandles = new ArrayList<>();
+            for(String requestId : candlesRequestIds){
+                allCandles.addAll(candlesMap.get(requestId));
+            }
+
+            System.out.println(JsonUtil.ObjectToJsonString(allCandles));
+
+            //strategyContinuous(allCandles);
         }
     }
 
