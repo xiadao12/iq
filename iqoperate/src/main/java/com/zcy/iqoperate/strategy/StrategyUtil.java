@@ -1,6 +1,6 @@
 package com.zcy.iqoperate.strategy;
 
-import com.zcy.iqoperate.filter.BaseStrategyFilter;
+import com.zcy.iqoperate.filter.StrategyBaseFilter;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.util.DateUtil;
 
@@ -87,7 +87,7 @@ public class StrategyUtil {
     }
 
     //判断是否是在活跃时间内
-    public static Boolean judgeActivetime(List<BaseStrategyFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle) {
+    public static Boolean judgeActivetime(List<StrategyBaseFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle) {
 
         //如果没有活跃时间集合，则默认返回true
         if (activeTimes == null || activeTimes.size() <= 0) {
@@ -117,7 +117,7 @@ public class StrategyUtil {
         }
 
         //遍历活跃时间集合
-        for (BaseStrategyFilter.ActiveTime activeTime : activeTimes) {
+        for (StrategyBaseFilter.ActiveTime activeTime : activeTimes) {
             String startTimeString = activeTime.getActiveStartTimeString();
             if (startTimeString == null) {
                 continue;

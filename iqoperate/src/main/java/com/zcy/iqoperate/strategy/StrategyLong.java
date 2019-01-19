@@ -1,7 +1,7 @@
 package com.zcy.iqoperate.strategy;
 
-import com.zcy.iqoperate.filter.BaseStrategyFilter;
-import com.zcy.iqoperate.filter.LongStrategyFilter;
+import com.zcy.iqoperate.filter.StrategyBaseFilter;
+import com.zcy.iqoperate.filter.StrategyLongFilter;
 import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.util.DateUtil;
@@ -20,51 +20,51 @@ import java.util.List;
 public class StrategyLong {
 
     public void execute(List<CandlesResponse.Candle> candles, Object strategyFilterObject) {
-        LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
+        StrategyLongFilter strategyLongFilter = JsonUtil.convertValue(strategyFilterObject, StrategyLongFilter.class);
 
         //活跃时间
-        //List<BaseStrategyFilter.ActiveTime> activeTimes = longStrategyFilter.getActiveTimes();
+        //List<StrategyBaseFilter.ActiveTime> activeTimes = longStrategyFilter.getActiveTimes();
 
         //因子最小值
-        BigDecimal startFactor = longStrategyFilter.getStartFactor();
+        BigDecimal startFactor = strategyLongFilter.getStartFactor();
 
         //因子最大值
-        BigDecimal endFactor = longStrategyFilter.getEndFactor();
+        BigDecimal endFactor = strategyLongFilter.getEndFactor();
 
         //因子从小到大间距
-        BigDecimal factorDistance = longStrategyFilter.getFactorDistance();
+        BigDecimal factorDistance = strategyLongFilter.getFactorDistance();
 
         //跳过个数再获取结果
-        Integer skipSize = longStrategyFilter.getSkipSize();
+        Integer skipSize = strategyLongFilter.getSkipSize();
 
         //遍历时间,一个小时为间隔
         //活跃时间
-        List<List<BaseStrategyFilter.ActiveTime>> allActiveTime = new ArrayList<>();
+        List<List<StrategyBaseFilter.ActiveTime>> allActiveTime = new ArrayList<>();
         for (int i = 0; i <= 9; i++) {
-            BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+            StrategyBaseFilter.ActiveTime activeTime = new StrategyBaseFilter.ActiveTime();
             activeTime.setActiveStartTimeString("0" + i + ":00:00");
             activeTime.setActiveEndTimeString("0" + i + ":59:59");
 
-            List<BaseStrategyFilter.ActiveTime> activeTimes = new ArrayList<>();
+            List<StrategyBaseFilter.ActiveTime> activeTimes = new ArrayList<>();
             activeTimes.add(activeTime);
 
             allActiveTime.add(activeTimes);
         }
         for (int i = 10; i <= 23; i++) {
-            BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+            StrategyBaseFilter.ActiveTime activeTime = new StrategyBaseFilter.ActiveTime();
             activeTime.setActiveStartTimeString(i + ":00:00");
             activeTime.setActiveEndTimeString(i + ":59:59");
 
-            List<BaseStrategyFilter.ActiveTime> activeTimes = new ArrayList<>();
+            List<StrategyBaseFilter.ActiveTime> activeTimes = new ArrayList<>();
             activeTimes.add(activeTime);
 
             allActiveTime.add(activeTimes);
         }
 
-/*        BaseStrategyFilter.ActiveTime activeTime = new BaseStrategyFilter.ActiveTime();
+/*        StrategyBaseFilter.ActiveTime activeTime = new StrategyBaseFilter.ActiveTime();
         activeTime.setActiveStartTimeString("22:00:00");
         activeTime.setActiveEndTimeString("22:59:59");
-        List<BaseStrategyFilter.ActiveTime> activeTimesTemp = new ArrayList<>();
+        List<StrategyBaseFilter.ActiveTime> activeTimesTemp = new ArrayList<>();
         activeTimesTemp.add(activeTime);
         allActiveTime.add(activeTimesTemp);*/
 
@@ -72,7 +72,7 @@ public class StrategyLong {
         for (BigDecimal factor = startFactor; factor.compareTo(endFactor) < 0; factor = factor.add(factorDistance)) {
 
             //遍历活跃时间
-            for (List<BaseStrategyFilter.ActiveTime> activeTimes : allActiveTime) {
+            for (List<StrategyBaseFilter.ActiveTime> activeTimes : allActiveTime) {
 
                 System.out.println();
                 System.out.println("计算因子为：" + factor);

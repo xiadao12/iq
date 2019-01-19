@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * create date : 2019/1/13
  */
-public class LongStrategyFilter extends BaseStrategyFilter {
+public class StrategyLongFilter extends StrategyBaseFilter {
 
     //因子最小值
     private BigDecimal startFactor;

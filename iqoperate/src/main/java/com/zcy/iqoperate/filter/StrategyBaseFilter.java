@@ -6,7 +6,7 @@ import java.util.List;
  * 策略条件
  * create date : 2019/1/13
  */
-public class BaseStrategyFilter {
+public class StrategyBaseFilter {
 
     //外汇id
     private Integer activeId;

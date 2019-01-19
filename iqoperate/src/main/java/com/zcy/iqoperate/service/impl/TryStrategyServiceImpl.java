@@ -1,7 +1,7 @@
 package com.zcy.iqoperate.service.impl;
 
 import com.zcy.iqoperate.core.BtResult;
-import com.zcy.iqoperate.filter.LongStrategyFilter;
+import com.zcy.iqoperate.filter.StrategyLongFilter;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
@@ -61,19 +61,19 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //初始化传入参数
         this.strategyFilterObject = strategyFilterObject;
 
-        LongStrategyFilter longStrategyFilter = JsonUtil.convertValue(strategyFilterObject, LongStrategyFilter.class);
-        if (longStrategyFilter == null) {
+        StrategyLongFilter strategyLongFilter = JsonUtil.convertValue(strategyFilterObject, StrategyLongFilter.class);
+        if (strategyLongFilter == null) {
             return BtResult.ERROR("解析参数失败");
         }
 
         //外汇id
-        Integer activeId = longStrategyFilter.getActiveId();
+        Integer activeId = strategyLongFilter.getActiveId();
         if (activeId == null) {
             return BtResult.ERROR("未传activeId");
         }
 
         //初始化查询天数
-        Integer candleDays = longStrategyFilter.getCandleDays();
+        Integer candleDays = strategyLongFilter.getCandleDays();
         if (candleDays == null) {
             return BtResult.ERROR("未传candleDays");
         }
@@ -81,7 +81,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //Long currentId = IqUtil.getCurrentId();
         //Long currentId = 447397L;
         //Long currentId = 226255L;
-        Long currentId = longStrategyFilter.getCurrentId();
+        Long currentId = strategyLongFilter.getCurrentId();
 
         // 12*60
         Integer halfdayIdSize = 720;
