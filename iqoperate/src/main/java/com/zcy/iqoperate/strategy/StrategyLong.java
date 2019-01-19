@@ -6,6 +6,7 @@ import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.JsonUtil;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
  * 策略：长蜡烛
  * create date : 2019/1/19
  */
+@Component
 public class StrategyLong {
 
     public void execute(List<CandlesResponse.Candle> candles, Object strategyFilterObject) {

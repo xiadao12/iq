@@ -1,6 +1,7 @@
 package com.zcy.iqoperate.strategy;
 
 import com.zcy.iqoperate.model.response.CandlesResponse;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  *
  * create date : 2019/1/19
  */
+@Component
 public class StrategyShadowLine {
 
     public void execute(List<CandlesResponse.Candle> candles) {

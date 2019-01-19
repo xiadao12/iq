@@ -4,6 +4,8 @@ import com.zcy.iqoperate.model.CandleMessage;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.JsonUtil;
+import com.zcy.iqoperate.util.MapUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.Map;
  * 连续个数
  * create date : 2019/1/19
  */
+@Component
 public class StrategyContinuous {
 
     public void execute(List<CandlesResponse.Candle> candles) {
@@ -69,10 +72,13 @@ public class StrategyContinuous {
             preTrend = currentTrend;
         }
 
-        System.out.println("maxSum = " + maxSum);
-        System.out.println("maxSumTo = " + DateUtil.timeStampToDateString(maxSumTo * 1000));
-        System.out.println("maxSumTo = " + JsonUtil.ObjectToJsonString(sumMap));
-        System.out.println("maxSumTo = " + JsonUtil.ObjectToJsonString(sumListMap));
+        //按key排序
+        sumMap = MapUtil.sortMapByKey(sumMap);
+
+        System.out.println("最多连续个数 = " + maxSum);
+        System.out.println("最多连续时间 = " + DateUtil.timeStampToDateString(maxSumTo * 1000));
+        System.out.println("连续数量对应 = " + JsonUtil.ObjectToJsonString(sumMap));
+        System.out.println("连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap));
     }
 
 }

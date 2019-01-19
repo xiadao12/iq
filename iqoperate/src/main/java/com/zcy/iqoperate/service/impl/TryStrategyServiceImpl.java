@@ -6,6 +6,8 @@ import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
+import com.zcy.iqoperate.strategy.StrategyContinuous;
+import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,6 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     //条件
     private Object strategyFilterObject;
 
-    @Autowired
-    private WebsocketService websocketService;
-
     //获取candles循环次数 = candleDays * 2
     private Integer candlesCycleSize;
 
@@ -35,6 +34,12 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
     //request_id与蜡烛集合的map
     private Map<String, List<CandlesResponse.Candle>> candlesMap = new HashMap<>();
+
+    @Autowired
+    private WebsocketService websocketService;
+
+    @Autowired
+    StrategyContinuous strategyContinuous;
 
     /**
      * 执行
@@ -150,9 +155,13 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.addAll(candlesMap.get(requestId));
             }
 
-            System.out.println(JsonUtil.ObjectToJsonString(allCandles));
+            //最后一个蜡烛图时间
+            Long lastCandleFrom = allCandles.get(allCandles.size() - 1).getFrom();
+            System.out.println("最后一个蜡烛图时间是："  + DateUtil.timeStampToDateString(lastCandleFrom * 1000));
 
-            //strategyContinuous(allCandles);
+            System.out.println("所有蜡烛图信息：" + JsonUtil.ObjectToJsonString(candles));
+
+            strategyContinuous.execute(allCandles);
         }
     }
 }
