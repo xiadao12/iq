@@ -72,9 +72,11 @@ public class StrategyContinuous {
 
             for (CandlesResponse.Candle candle : candles) {
 
-                //if(factor.compareTo(new BigDecimal(0000020)) >= 0 && DateUtil.timeStampToDateString(candle.getFrom()).equals("2019-01-19 03:32:00")){
-                //if (factor.compareTo(new BigDecimal(0.0000020)) >= 0) {
-/*                if (factor.compareTo(new BigDecimal(0.0000020)) >= 0 && DateUtil.timeStampToDateString(candle.getFrom() * 1000).equals("2019-01-19 03:32:00")) {
+/*                if(DateUtil.timeStampToDateString(candle.getTo() * 1000).equals("2018-12-11 16:17:00")){
+                    System.out.println();
+                }
+
+                if (factor.compareTo(new BigDecimal(0.00010)) >= 0 && DateUtil.timeStampToDateString(candle.getTo() * 1000).equals("2018-12-11 16:17:00")) {
                     System.out.println();
                 }*/
                 //蜡烛信息
@@ -91,13 +93,10 @@ public class StrategyContinuous {
                 // 2 蜡烛图是平的而且连续结果集合数量是大于等于支付的开始蜡烛图
                 if (currentTrend.equals(preCandleMessage.getTrend()) || (currentTrend.equals(0) && currentTrend.equals(0) && candlesResult.size() + 1 >= payFromNumber)) {
 
-                    //则将蜡烛放到集合中
-                    candlesResult.add(candle);
-
                     //记录第一个蜡烛图
-                    if (candlesResult.size() <= 0) {
+                    if (candlesResult.size() == 1) {
                         //记录第一个蜡烛信息
-                        CandleMessage firstCandleMessage = candleMessage;
+                        CandleMessage firstCandleMessage = CandleMessage.getCandleMessage(candlesResult.get(0));
 
                         //如果第一个蜡烛图达到符合实体的长度
                         if (firstCandleMessage.getEntity().compareTo(conformEntity) >= 0) {
@@ -106,31 +105,35 @@ public class StrategyContinuous {
                         }
                     }
 
+                    //则将蜡烛放到集合中
+                    candlesResult.add(candle);
+
                     //如果达到符合实体的长度
                     if (candleMessage.getEntity().compareTo(conformEntity) >= 0) {
                         //符合实体的数量相加
                         conformCandleSum++;
-
-                        //如果符合实体的数量 大于几个蜡烛符合达到相应长度（conformNumber）
-                        //而且符合开始支付的数量
-                        if (conformCandleSum >= conformNumber && candlesResult.size() + 1 >= payFromNumber) {
-                            //则将蜡烛放到集合中
-                            payCandlesResult.add(candle);
-                        }
-
                     }
 
-/*                    //更新连续最多的个数
-                    if (payCandlesResult.size() > maxSum) {
-                        maxSumFrom = candle.getTo();
-                        maxSum = payCandlesResult.size();
-                    }*/
+                    //如果符合实体的数量 大于几个蜡烛符合达到相应长度（conformNumber）
+                    //而且符合开始支付的数量,注：candlesResult.size() + 1 >= payFromNumber，正常应该是向前面+1再进行判断的，但因为candlesResult提前把candle放进去了，所以抵消不用+1
+                    if (conformCandleSum >= conformNumber && candlesResult.size() >= payFromNumber) {
+                        //则将蜡烛放到集合中
+                        payCandlesResult.add(candle);
+                    }
+
                 } else {
                     //如果和上一个蜡烛图不同
                     //排除蜡烛是平的，而且连续结果集合数量是否小于支付的开始蜡烛图，
                     if (!(currentTrend.equals(0) && candlesResult.size() + 1 < payFromNumber)) {
 
-                        if (payCandlesResult != null && payCandlesResult.size() > 0) {
+                        //把反转的蜡烛也放到支付集合里
+                        if(conformCandleSum >= conformNumber && candlesResult.size() + 1 >= payFromNumber){
+                            payCandlesResult.add(candle);
+                        }
+
+                        // 1 支付结果有数据
+                        // 2 或者支付结果没数据，但正好是第五个蜡烛图反转
+                        if ((payCandlesResult != null && payCandlesResult.size() > 0)) {
                             if (sumMap.get(payCandlesResult.size()) == null) {
                                 sumMap.put(payCandlesResult.size(), 1);
                             } else {
@@ -152,7 +155,9 @@ public class StrategyContinuous {
                     candlesResult.clear();
                     payCandlesResult.clear();
                     conformCandleSum = 0;
-                    //conformCandleFrom = 0L;
+
+                    //清空集合后，放入蜡烛，是下一个集合的开始
+                    candlesResult.add(candle);
                 }
 
                 preCandleMessage = candleMessage;
@@ -178,7 +183,10 @@ public class StrategyContinuous {
             candlesResult = new ArrayList<>();
         }
 
-        FileUtil.createJsonFile(content, "D:/iq", "strateResult_"+strategyContinuousFilter.getActiveId()+".json");
+        //创建策略结果文件
+        if(strategyContinuousFilter.getCreateResultFile()){
+            FileUtil.createJsonFile(content, "D:/iq", "StrategyContinuous_"+strategyContinuousFilter.getActiveId()+".json");
+        }
     }
 
 }

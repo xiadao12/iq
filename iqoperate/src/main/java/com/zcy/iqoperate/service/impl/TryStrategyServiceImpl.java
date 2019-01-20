@@ -184,7 +184,12 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             StrategyContinuousFilter strategyContinuousFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousFilter.class);
 
-            FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(allCandles), "D:/iq","candles_" + strategyContinuousFilter.getActiveId() + ".json");
+            //创建蜡烛图集合文件
+            if(strategyContinuousFilter.getCreateCandlesFile()){
+                FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(allCandles), "D:/iq","candles_" + strategyContinuousFilter.getActiveId() + ".json");
+            }
+
+            //执行策略
             strategyContinuous.execute(allCandles, strategyFilterObject);
         }
     }

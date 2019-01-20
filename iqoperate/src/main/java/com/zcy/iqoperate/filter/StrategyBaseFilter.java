@@ -20,6 +20,12 @@ public class StrategyBaseFilter {
     //是否从文件中读取蜡烛图
     private Boolean readCandlesFromFile = false;
 
+    //是否创建蜡烛集合文件
+    private Boolean createCandlesFile = true;
+
+    //是否创建策略结果文件
+    private Boolean createResultFile = true;
+
 /*    //查询的开始日期 2019-01-01 22:00:00
     private String startDateString;
 
@@ -79,6 +85,22 @@ public class StrategyBaseFilter {
 
     public void setReadCandlesFromFile(Boolean readCandlesFromFile) {
         this.readCandlesFromFile = readCandlesFromFile;
+    }
+
+    public Boolean getCreateCandlesFile() {
+        return createCandlesFile;
+    }
+
+    public void setCreateCandlesFile(Boolean createCandlesFile) {
+        this.createCandlesFile = createCandlesFile;
+    }
+
+    public Boolean getCreateResultFile() {
+        return createResultFile;
+    }
+
+    public void setCreateResultFile(Boolean createResultFile) {
+        this.createResultFile = createResultFile;
     }
 
     /**
