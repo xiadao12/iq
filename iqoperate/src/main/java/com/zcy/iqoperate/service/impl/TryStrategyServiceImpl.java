@@ -56,9 +56,6 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //清空request_id与蜡烛集合的map
         candlesMap.clear();
 
-        //每个蜡烛图秒数
-        Integer candleSize = 60;
-
         //初始化传入参数
         this.strategyFilterObject = strategyFilterObject;
 
@@ -83,6 +80,9 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             strategyContinuous.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
+
+        //每个蜡烛图秒数
+        Integer candleSize = strategyContinuousFilter.getCandleSize();
 
         //外汇id
         Integer activeId = strategyContinuousFilter.getActiveId();

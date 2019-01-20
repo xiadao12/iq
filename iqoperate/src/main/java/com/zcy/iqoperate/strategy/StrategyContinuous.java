@@ -170,7 +170,7 @@ public class StrategyContinuous {
             System.out.println("连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap));
 
             content = content + "连续数量对应 = " + JsonUtil.ObjectToJsonString(sumMap);
-            //content = content + "连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap);
+            content = content + "连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap);
 
             //循环一个因子后清除数据
             //上一个涨与跌

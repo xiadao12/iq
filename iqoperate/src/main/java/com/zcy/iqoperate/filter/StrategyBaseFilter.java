@@ -26,6 +26,9 @@ public class StrategyBaseFilter {
     //是否创建策略结果文件
     private Boolean createResultFile = true;
 
+    //蜡烛尺寸，以秒为单位，默认60
+    Integer candleSize = 60;
+
 
 /*    //查询的开始时间00:00:00
     private String startTimeString;
@@ -111,6 +114,14 @@ public class StrategyBaseFilter {
 
     public void setCreateResultFile(Boolean createResultFile) {
         this.createResultFile = createResultFile;
+    }
+
+    public Integer getCandleSize() {
+        return candleSize;
+    }
+
+    public void setCandleSize(Integer candleSize) {
+        this.candleSize = candleSize;
     }
 
     /**
