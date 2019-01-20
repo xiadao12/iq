@@ -132,7 +132,7 @@ public class FileUtil {
      * @return
      */
     public static Object readFileToObject(String filePath, Class classType) {
-        File file = new File("D:/iq/candles.json");
+        File file = new File(filePath);
         ObjectMapper mapper = new ObjectMapper();
 
         //返回结果

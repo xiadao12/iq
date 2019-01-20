@@ -80,6 +80,12 @@ public class StrategyContinuous {
             //Long conformCandleFrom = 0L;
 
             for (CandlesResponse.Candle candle : candles) {
+
+                //if(factor.compareTo(new BigDecimal(0000020)) >= 0 && DateUtil.timeStampToDateString(candle.getFrom()).equals("2019-01-19 03:32:00")){
+                //if (factor.compareTo(new BigDecimal(0.0000020)) >= 0) {
+/*                if (factor.compareTo(new BigDecimal(0.0000020)) >= 0 && DateUtil.timeStampToDateString(candle.getFrom() * 1000).equals("2019-01-19 03:32:00")) {
+                    System.out.println();
+                }*/
                 //蜡烛信息
                 CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
@@ -180,7 +186,7 @@ public class StrategyContinuous {
             candlesResult = new ArrayList<>();
         }
 
-        FileUtil.createJsonFile(content,"D:/iq","strateResult.json");
+        FileUtil.createJsonFile(content, "D:/iq", "strateResult_"+strategyContinuousFilter.getActiveId()+".json");
     }
 
 }

@@ -71,7 +71,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         if(strategyContinuousFilter.getReadCandlesFromFile()){
 
             //从文件读取蜡烛集合
-            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles.json", List.class);
+            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles_"+strategyContinuousFilter.getActiveId()+".json", List.class);
 
             //将读取的蜡烛类型转换
             List<CandlesResponse.Candle> allCandles = new ArrayList<>();
@@ -113,7 +113,10 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //计算出第一个请求的id
         currentId = currentId - candlesCycleSize * halfdayIdSize;
 
-        for (int i = 0; i < candlesCycleSize; i++) {
+        //将其进行赋值临时处理。因为这边接收candles那边candlesCycleSize会自减，造成数据冲突
+        Integer candlesCycleSizeTemp = candlesCycleSize;
+
+        for (int i = 0; i < candlesCycleSizeTemp; i++) {
 
             String request_id = String.valueOf(System.currentTimeMillis() + i);
             candlesRequestIds.add(request_id);
@@ -162,7 +165,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         candlesMap.put(candlesResponse.getRequest_id(), candles);
 
         //查询天数自减，
-        candlesCycleSize--;
+        candlesCycleSize --;
 
         //直到0时说明所有蜡烛信息收集完毕
         if (candlesCycleSize.equals(0)) {
@@ -177,9 +180,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             Long lastCandleFrom = allCandles.get(allCandles.size() - 1).getFrom();
             System.out.println("最后一个蜡烛图时间是："  + DateUtil.timeStampToDateString(lastCandleFrom * 1000));
 
-            System.out.println("所有蜡烛图信息：" + JsonUtil.ObjectToJsonString(candles));
+            //System.out.println("所有蜡烛图信息：" + JsonUtil.ObjectToJsonString(allCandles));
 
-            FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(candles), "D:/iq","candles.json");
+            StrategyContinuousFilter strategyContinuousFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousFilter.class);
+
+            FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(allCandles), "D:/iq","candles_" + strategyContinuousFilter.getActiveId() + ".json");
             strategyContinuous.execute(allCandles, strategyFilterObject);
         }
     }
