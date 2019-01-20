@@ -55,12 +55,6 @@ public class StrategyContinuous {
             //上一个蜡烛图信息
             CandleMessage preCandleMessage = new CandleMessage();
 
-            //记录最多连续蜡烛图个数
-            //Integer maxSum = 0;
-
-            //记录最多连续蜡烛图的From
-            //Long maxSumFrom = 0L;
-
             //统计连续数量和个数的map
             Map<Integer, Integer> sumMap = new HashMap<>();
 
@@ -75,9 +69,6 @@ public class StrategyContinuous {
 
             //符合长度的蜡烛图数量
             Integer conformCandleSum = 0;
-
-            //符合长度的蜡烛图开始时间
-            //Long conformCandleFrom = 0L;
 
             for (CandlesResponse.Candle candle : candles) {
 
@@ -135,6 +126,7 @@ public class StrategyContinuous {
                         maxSum = payCandlesResult.size();
                     }*/
                 } else {
+                    //如果和上一个蜡烛图不同
                     //排除蜡烛是平的，而且连续结果集合数量是否小于支付的开始蜡烛图，
                     if (!(currentTrend.equals(0) && candlesResult.size() + 1 < payFromNumber)) {
 
@@ -147,11 +139,11 @@ public class StrategyContinuous {
 
                             if (sumListMap.get(payCandlesResult.size()) == null) {
                                 List<String> ss = new ArrayList<>();
-                                ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getFrom() * 1000));
+                                ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
                                 sumListMap.put(payCandlesResult.size(), ss);
                             } else {
                                 List<String> ss = sumListMap.get(payCandlesResult.size());
-                                ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getFrom() * 1000));
+                                ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
                                 sumListMap.put(payCandlesResult.size(), ss);
                             }
                         }
