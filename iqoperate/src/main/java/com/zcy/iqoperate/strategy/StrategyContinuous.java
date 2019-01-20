@@ -72,13 +72,12 @@ public class StrategyContinuous {
 
             for (CandlesResponse.Candle candle : candles) {
 
-/*                if(DateUtil.timeStampToDateString(candle.getTo() * 1000).equals("2018-12-11 16:17:00")){
-                    System.out.println();
-                }
+/*                    String candleToDateString = DateUtil.timeStampToDateString(candle.getTo() * 1000);
+                    candleToDateString = candleToDateString.substring(candleToDateString.indexOf(" ") + 1, candleToDateString.length());
+                    if (candleToDateString.compareTo(startTime) < 0 || candleToDateString.compareTo(endTime) > 0) {
+                        continue;
+                    }*/
 
-                if (factor.compareTo(new BigDecimal(0.00010)) >= 0 && DateUtil.timeStampToDateString(candle.getTo() * 1000).equals("2018-12-11 16:17:00")) {
-                    System.out.println();
-                }*/
                 //蜡烛信息
                 CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
@@ -127,7 +126,7 @@ public class StrategyContinuous {
                     if (!(currentTrend.equals(0) && candlesResult.size() + 1 < payFromNumber)) {
 
                         //把反转的蜡烛也放到支付集合里
-                        if(conformCandleSum >= conformNumber && candlesResult.size() + 1 >= payFromNumber){
+                        if (conformCandleSum >= conformNumber && candlesResult.size() + 1 >= payFromNumber) {
                             payCandlesResult.add(candle);
                         }
 
@@ -171,7 +170,7 @@ public class StrategyContinuous {
             System.out.println("连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap));
 
             content = content + "连续数量对应 = " + JsonUtil.ObjectToJsonString(sumMap);
-            content = content + "连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap);
+            //content = content + "连续数量时间 = " + JsonUtil.ObjectToJsonString(sumListMap);
 
             //循环一个因子后清除数据
             //上一个涨与跌
@@ -184,8 +183,8 @@ public class StrategyContinuous {
         }
 
         //创建策略结果文件
-        if(strategyContinuousFilter.getCreateResultFile()){
-            FileUtil.createJsonFile(content, "D:/iq", "StrategyContinuous_"+strategyContinuousFilter.getActiveId()+".json");
+        if (strategyContinuousFilter.getCreateResultFile()) {
+            FileUtil.createJsonFile(content, "D:/iq", "StrategyContinuous_" + strategyContinuousFilter.getActiveId() + ".json");
         }
     }
 
