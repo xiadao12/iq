@@ -26,6 +26,16 @@ public class StrategyBaseFilter {
     //是否创建策略结果文件
     private Boolean createResultFile = true;
 
+
+/*    //查询的开始时间00:00:00
+    private String startTimeString;
+
+    //查询的结束日期23:59:59
+    private String endDateString;
+
+    //查询的间隔时间，单位是秒
+    private Integer timeDistance;*/
+
 /*    //查询的开始日期 2019-01-01 22:00:00
     private String startDateString;
 
