@@ -58,60 +58,61 @@ public class StrategyContinuousDouble {
             //当前涨跌
             Integer currentTrend = candleMessage.getTrend();
 
-            //和上一个一样涨跌或者是平的
-            if (currentTrend.equals(preCandleMessage.getTrend()) || currentTrend.equals(0)) {
-
-                //则将蜡烛放到集合中
-                candlesResult.add(candle);
-
-                if(continuousTrend != null){
-                    payCandlesResult.add(candle);
+            if(continuousTrend == null){
+                //和上一个一样涨跌或者是平的
+                if (currentTrend.equals(preCandleMessage.getTrend()) || currentTrend.equals(0)) {
+                    //则将蜡烛放到集合中
+                    candlesResult.add(candle);
                 }
+                //如果和上一个蜡烛图不同
+                else {
 
-            }
-            //如果和上一个蜡烛图不同
-            else {
-                if (candlesResult.size() >= continuousSize) {
-
-                    if(continuousTrend != null){
-
-                        payCandlesResult.add(candle);
-
-                        if (sumMap.get(payCandlesResult.size()) == null) {
-                            sumMap.put(payCandlesResult.size(), 1);
-                        } else {
-                            sumMap.put(payCandlesResult.size(), sumMap.get(payCandlesResult.size()) + 1);
-                        }
-
-                        if (sumListMap.get(payCandlesResult.size()) == null) {
-                            List<String> ss = new ArrayList<>();
-                            ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
-                            sumListMap.put(payCandlesResult.size(), ss);
-                        } else {
-                            List<String> ss = sumListMap.get(payCandlesResult.size());
-                            ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
-                            sumListMap.put(payCandlesResult.size(), ss);
-                        }
-
+                    if(candlesResult.size() < continuousSize){
                         candlesResult.clear();
                         payCandlesResult.clear();
                         continuousTrend = null;
 
                         //清空集合后，放入蜡烛，是下一个集合的开始
                         candlesResult.add(candle);
+                    }else {
+                        //获取连续蜡烛的涨跌
+                        if((payCandlesResult == null || payCandlesResult.size() <=0) && continuousTrend == null){
+                            continuousTrend = preCandleMessage.getTrend();
+                        }
+                    }
+                }
+            }else {
+                //和上一个一样涨跌或者是平的
+                if (currentTrend.equals(continuousTrend) || currentTrend.equals(0)) {
+                    payCandlesResult.add(candle);
+                }
+                //如果和上一个蜡烛图不同
+                else {
+                    payCandlesResult.add(candle);
+
+                    if (sumMap.get(payCandlesResult.size()) == null) {
+                        sumMap.put(payCandlesResult.size(), 1);
+                    } else {
+                        sumMap.put(payCandlesResult.size(), sumMap.get(payCandlesResult.size()) + 1);
                     }
 
-                    //获取连续蜡烛的涨跌
-                    if((payCandlesResult == null || payCandlesResult.size() <=0) && continuousTrend == null){
-                        continuousTrend = preCandleMessage.getTrend();
+                    if (sumListMap.get(payCandlesResult.size()) == null) {
+                        List<String> ss = new ArrayList<>();
+                        ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
+                        sumListMap.put(payCandlesResult.size(), ss);
+                    } else {
+                        List<String> ss = sumListMap.get(payCandlesResult.size());
+                        ss.add(DateUtil.timeStampToDateString(payCandlesResult.get(0).getTo() * 1000));
+                        sumListMap.put(payCandlesResult.size(), ss);
                     }
-                }else {
+
                     candlesResult.clear();
                     payCandlesResult.clear();
                     continuousTrend = null;
 
                     //清空集合后，放入蜡烛，是下一个集合的开始
                     candlesResult.add(candle);
+
                 }
 
             }
