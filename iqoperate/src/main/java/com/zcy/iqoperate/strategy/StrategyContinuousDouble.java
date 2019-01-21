@@ -60,7 +60,7 @@ public class StrategyContinuousDouble {
 
             if(continuousTrend == null){
                 //和上一个一样涨跌或者是平的
-                if (currentTrend.equals(preCandleMessage.getTrend()) || currentTrend.equals(0)) {
+                if (currentTrend.equals(preCandleMessage.getTrend()) && !currentTrend.equals(0)) {
                     //则将蜡烛放到集合中
                     candlesResult.add(candle);
                 }
