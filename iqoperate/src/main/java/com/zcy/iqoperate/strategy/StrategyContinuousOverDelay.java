@@ -48,18 +48,18 @@ public class StrategyContinuousOverDelay {
         //延迟几分钟购买
         for (int delayMinutes = 0; delayMinutes <= 4; delayMinutes++) {
 
-            System.out.println();
-            System.out.println("延迟购买分钟 = " + delayMinutes);
-            content = content + "延迟购买分钟  = " + delayMinutes;
-
             //连续蜡烛图个数以上（包含）
             for (int minCandlenum = 4; minCandlenum <= 8; minCandlenum++) {
 
-                System.out.println("最少的连续蜡烛数量 = " + minCandlenum);
-                content = content + "最少的连续蜡烛数量  = " + minCandlenum;
-
                 //反向的蜡烛图长度因子
                 for(BigDecimal factor = new BigDecimal(0.00001); factor.compareTo(new BigDecimal(0.0001)) <= 0; factor = factor.add(new BigDecimal(0.00001))){
+
+                    System.out.println();
+                    System.out.println("延迟购买分钟 = " + delayMinutes);
+                    content = content + "延迟购买分钟  = " + delayMinutes;
+
+                    System.out.println("最少的连续蜡烛数量 = " + minCandlenum);
+                    content = content + "最少的连续蜡烛数量  = " + minCandlenum;
 
                     System.out.println("反向的蜡烛图长度因子 = " + factor);
                     content = content + "反向的蜡烛图长度因子  = " + factor;
@@ -118,10 +118,10 @@ public class StrategyContinuousOverDelay {
 
                     }
 
-                    System.out.println("winNum = " + winNum);
+/*                    System.out.println("winNum = " + winNum);
                     System.out.println("winTimeList = " + winTimeList);
                     System.out.println("lostNum = " + winNum);
-                    System.out.println("lostTimeList = " + winTimeList);
+                    System.out.println("lostTimeList = " + winTimeList);*/
 
                     content = content + "winNum = " + winNum;
                     content = content + "winTimeList = " + winTimeList;
@@ -129,12 +129,13 @@ public class StrategyContinuousOverDelay {
                     content = content + "lostTimeList = " + winTimeList;
                 }
             }
+
+            //创建策略结果文件
+            if (strategyContinuousDoubleFilter.getCreateResultFile()) {
+                FileUtil.createJsonFile(content, "D:/iq", "StrategyContinuousOverDelay_"+ delayMinutes + strategyContinuousDoubleFilter.getActiveId() + ".json");
+            }
         }
 
-        //创建策略结果文件
-        if (strategyContinuousDoubleFilter.getCreateResultFile()) {
-            FileUtil.createJsonFile(content, "D:/iq", "StrategyContinuousOverDelay_" + strategyContinuousDoubleFilter.getActiveId() + ".json");
-        }
     }
 
 }
