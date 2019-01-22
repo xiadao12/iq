@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 连续蜡烛，结束后倍投
+ * 连续蜡烛，结束后两个涨两个跌两个涨
  * create date : 2019/1/19
  */
 @Component
