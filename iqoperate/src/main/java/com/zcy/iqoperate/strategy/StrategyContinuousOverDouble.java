@@ -18,7 +18,7 @@ import java.util.Map;
  * create date : 2019/1/19
  */
 @Component
-public class StrategyContinuousDouble {
+public class StrategyContinuousOverDouble {
 
     public void execute(List<CandlesResponse.Candle> candles, Object strategyFilterObject) {
 
