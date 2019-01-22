@@ -18,7 +18,7 @@ import java.util.Map;
  * create date : 2019/1/19
  */
 @Component
-public class StrategyContinuousDouble {
+public class StrategyContinuousOver {
 
     public void execute(List<CandlesResponse.Candle> candles, Object strategyFilterObject) {
 
@@ -58,7 +58,7 @@ public class StrategyContinuousDouble {
             //当前涨跌
             Integer currentTrend = candleMessage.getTrend();
 
-            if (continuousTrend == null) {
+            if(continuousTrend == null){
                 //和上一个一样涨跌或者是平的
                 if (currentTrend.equals(preCandleMessage.getTrend()) && !currentTrend.equals(0)) {
                     //则将蜡烛放到集合中
@@ -67,34 +67,23 @@ public class StrategyContinuousDouble {
                 //如果和上一个蜡烛图不同
                 else {
 
-                    if (candlesResult.size() < continuousSize) {
+                    if(candlesResult.size() < continuousSize){
                         candlesResult.clear();
                         payCandlesResult.clear();
                         continuousTrend = null;
 
                         //清空集合后，放入蜡烛，是下一个集合的开始
                         candlesResult.add(candle);
-                    } else {
+                    }else {
                         //获取连续蜡烛的涨跌
-                        if ((payCandlesResult == null || payCandlesResult.size() <= 0) && continuousTrend == null) {
+                        if((payCandlesResult == null || payCandlesResult.size() <=0) && continuousTrend == null){
                             continuousTrend = preCandleMessage.getTrend();
                         }
                     }
                 }
-            } else {
+            }else {
                 //和上一个一样涨跌或者是平的
-                //涨后一直跌
-                //if (currentTrend.equals(continuousTrend) || currentTrend.equals(0)) {
-                //涨跌轮询
-                //if (!currentTrend.equals(preCandleMessage.getTrend()) || currentTrend.equals(0)) {
-
-                if (payCandlesResult.size() < 2 && !currentTrend.equals(continuousTrend)) {
-                    payCandlesResult.add(candle);
-                } else if (payCandlesResult.size() >= 2 && payCandlesResult.size() < 4 && currentTrend.equals(continuousTrend)) {
-                    payCandlesResult.add(candle);
-                } else if (payCandlesResult.size() >= 4 && payCandlesResult.size() < 6 && !currentTrend.equals(continuousTrend)) {
-                    payCandlesResult.add(candle);
-                }else if (payCandlesResult.size() >= 6 && payCandlesResult.size() < 8 && currentTrend.equals(continuousTrend)) {
+                if (currentTrend.equals(continuousTrend) || currentTrend.equals(0)) {
                     payCandlesResult.add(candle);
                 }
                 //如果和上一个蜡烛图不同
