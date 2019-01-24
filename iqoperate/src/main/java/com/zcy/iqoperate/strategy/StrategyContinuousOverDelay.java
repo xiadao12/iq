@@ -23,16 +23,13 @@ public class StrategyContinuousOverDelay {
 
         StrategyContinuousDoubleFilter strategyContinuousDoubleFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousDoubleFilter.class);
 
-        //连续个数
-        //Integer continuousSize = strategyContinuousDoubleFilter.getContinuousSize();
-
         //上一个蜡烛图信息
         CandleMessage preCandleMessage = new CandleMessage();
 
         //一个连续的蜡烛集合
         List<CandlesResponse.Candle> candlesResult = new ArrayList<>();
 
-        //连续蜡烛的涨跌
+        //连续蜡烛的涨跌方向
         Integer continuousTrend = null;
 
         //记录输赢的次数
@@ -43,16 +40,16 @@ public class StrategyContinuousOverDelay {
         List<String> winTimeList = new ArrayList<>();
         List<String> lostTimeList = new ArrayList<>();
 
-        String content = "";
+
 
         //延迟几分钟购买
-        for (int delayMinutes = 0; delayMinutes <= 4; delayMinutes++) {
-
+        for (int delayMinutes = 0; delayMinutes <= 5; delayMinutes++) {
+            String content = "";
             //连续蜡烛图个数以上（包含）
             for (int minCandlenum = 4; minCandlenum <= 8; minCandlenum++) {
 
                 //反向的蜡烛图长度因子
-                for(BigDecimal factor = new BigDecimal(0.00001); factor.compareTo(new BigDecimal(0.0001)) <= 0; factor = factor.add(new BigDecimal(0.00001))){
+                for(BigDecimal factor = new BigDecimal(0.00001); factor.compareTo(new BigDecimal(0.0002)) <= 0; factor = factor.add(new BigDecimal(0.00001))){
 
                     System.out.println();
                     System.out.println("延迟购买分钟 = " + delayMinutes);
@@ -85,7 +82,7 @@ public class StrategyContinuousOverDelay {
                             else {
 
                                 //反向的蜡烛最大长度
-                                BigDecimal candleMaxSize = candle.getOpen().subtract(factor);
+                                BigDecimal candleMaxSize = candle.getOpen().multiply(factor);
 
                                 if (candlesResult.size() < minCandlenum || candleMessage.getEntity().compareTo(candleMaxSize) > 0) {
                                     candlesResult.clear();
@@ -104,13 +101,25 @@ public class StrategyContinuousOverDelay {
 
                             CandlesResponse.Candle resultCandle = candles.get(k + delayMinutes);
 
-                            if((continuousTrend > 0 && resultCandle.getClose().compareTo(buy) > 0) || (continuousTrend < 0 && resultCandle.getClose().compareTo(buy) < 0)){
+                            if((continuousTrend > 0 && resultCandle.getClose().compareTo(buy) < 0) || (continuousTrend < 0 && resultCandle.getClose().compareTo(buy) > 0)){
 
                                 winNum ++;
                                 winTimeList.add(DateUtil.timeStampToDateString(candle.getTo() * 1000));
+
+                                candlesResult.clear();
+                                continuousTrend = null;
+
+                                //清空集合后，放入蜡烛，是下一个集合的开始
+                                candlesResult.add(candle);
                             }else{
                                 lostNum ++;
                                 lostTimeList.add(DateUtil.timeStampToDateString(candle.getTo() * 1000));
+
+                                candlesResult.clear();
+                                continuousTrend = null;
+
+                                //清空集合后，放入蜡烛，是下一个集合的开始
+                                candlesResult.add(candle);
                             }
                         }
 
@@ -118,15 +127,15 @@ public class StrategyContinuousOverDelay {
 
                     }
 
-/*                    System.out.println("winNum = " + winNum);
+                    System.out.println("winNum = " + winNum);
                     System.out.println("winTimeList = " + winTimeList);
-                    System.out.println("lostNum = " + winNum);
-                    System.out.println("lostTimeList = " + winTimeList);*/
+                    System.out.println("lostNum = " + lostNum);
+                    System.out.println("lostTimeList = " + lostTimeList);
 
-                    content = content + "winNum = " + winNum;
-                    content = content + "winTimeList = " + winTimeList;
-                    content = content + "lostNum = " + winNum;
-                    content = content + "lostTimeList = " + winTimeList;
+                    content = content + "winNum = " + lostNum;
+                    content = content + "winTimeList = " + lostTimeList;
+                    content = content + "lostNum = " + lostNum;
+                    content = content + "lostTimeList = " + lostTimeList;
                 }
             }
 
