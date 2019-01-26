@@ -2,11 +2,13 @@ package com.zcy.iqoperate.service.impl;
 
 import com.zcy.iqoperate.core.BtResult;
 import com.zcy.iqoperate.filter.StrategyContinuousDoubleFilter;
+import com.zcy.iqoperate.filter.StrategyLongFilter;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
 import com.zcy.iqoperate.strategy.StrategyContinuousOverDelay;
+import com.zcy.iqoperate.strategy.StrategyLong1m;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.FileUtil;
 import com.zcy.iqoperate.util.JsonUtil;
@@ -48,8 +50,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 /*    @Autowired
     StrategyContinuousOver strategyContinuousOver;*/
 
+/*    @Autowired
+    StrategyContinuousOverDelay strategyContinuousOverDelay;*/
+
     @Autowired
-    StrategyContinuousOverDelay strategyContinuousOverDelay;
+    StrategyLong1m strategyLong1m = new StrategyLong1m();
 
     /**
      * 执行
@@ -68,16 +73,16 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //初始化传入参数
         this.strategyFilterObject = strategyFilterObject;
 
-        StrategyContinuousDoubleFilter strategyContinuousDoubleFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousDoubleFilter.class);
-        if (strategyContinuousDoubleFilter == null) {
+        StrategyLongFilter strategyFilter = JsonUtil.convertValue(strategyFilterObject, StrategyLongFilter.class);
+        if (strategyFilter == null) {
             return BtResult.ERROR("解析参数失败");
         }
 
         //如果是从文件中读取candles
-        if(strategyContinuousDoubleFilter.getReadCandlesFromFile()){
+        if(strategyFilter.getReadCandlesFromFile()){
 
             //从文件读取蜡烛集合
-            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles_"+strategyContinuousDoubleFilter.getActiveId()+".json", List.class);
+            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles_"+strategyFilter.getActiveId()+".json", List.class);
 
             //将读取的蜡烛类型转换
             List<CandlesResponse.Candle> allCandles = new ArrayList<>();
@@ -86,21 +91,21 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.add(candle);
             }
 
-            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
+            strategyLong1m.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
         //每个蜡烛图秒数
-        Integer candleSize = strategyContinuousDoubleFilter.getCandleSize();
+        Integer candleSize = strategyFilter.getCandleSize();
 
         //外汇id
-        Integer activeId = strategyContinuousDoubleFilter.getActiveId();
+        Integer activeId = strategyFilter.getActiveId();
         if (activeId == null) {
             return BtResult.ERROR("未传activeId");
         }
 
         //初始化查询天数
-        Integer candleDays = strategyContinuousDoubleFilter.getCandleDays();
+        Integer candleDays = strategyFilter.getCandleDays();
         if (candleDays == null) {
             return BtResult.ERROR("未传candleDays");
         }
@@ -108,19 +113,20 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         //Long currentId = IqUtil.getCurrentId();
         //Long currentId = 447397L;
         //Long currentId = 226255L;
-        Long currentId = strategyContinuousDoubleFilter.getCurrentId();
+        Long currentId = strategyFilter.getCurrentId();
 
         // 12*60
-        Integer halfdayIdSize = 720;
+        //每天有的个数
+        Integer dayIdSize = 24*60*60 / strategyFilter.getCandleSize();
 
         //id跳过个数
-        Integer skipIdSize = halfdayIdSize;
+        Integer skipIdSize = 720;
 
         //获取candles循环次数 = candleDays * 2
-        candlesCycleSize = candleDays * 2;
+        candlesCycleSize = candleDays * (dayIdSize / skipIdSize);
 
         //计算出第一个请求的id
-        currentId = currentId - candlesCycleSize * halfdayIdSize;
+        currentId = currentId - candlesCycleSize * skipIdSize;
 
         //将其进行赋值临时处理。因为这边接收candles那边candlesCycleSize会自减，造成数据冲突
         Integer candlesCycleSizeTemp = candlesCycleSize;
@@ -200,7 +206,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //执行策略
-            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
+            strategyLong1m.execute(allCandles, strategyFilterObject);
         }
     }
 }
