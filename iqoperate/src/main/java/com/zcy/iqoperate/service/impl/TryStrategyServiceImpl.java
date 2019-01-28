@@ -120,7 +120,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer dayIdSize = 24*60*60 / strategyFilter.getCandleSize();
 
         //id跳过个数
-        Integer skipIdSize = 720;
+        Integer skipIdSize = 12*60;
 
         //获取candles循环次数 = candleDays * 2
         candlesCycleSize = candleDays * (dayIdSize / skipIdSize);
