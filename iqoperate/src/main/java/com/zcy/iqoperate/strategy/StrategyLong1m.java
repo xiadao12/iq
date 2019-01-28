@@ -27,7 +27,7 @@ public class StrategyLong1m {
         //Integer preSize = 5;
         //BigDecimal factor = new BigDecimal(0.0001);
 
-        for (int preSize = 1; preSize <= 3; preSize++) {
+        for (int preSize = 2; preSize <= 2; preSize++) {
 
             //遍历起止因子
             for (BigDecimal factor = new BigDecimal(0.000000); factor.compareTo(new BigDecimal(0.0001)) < 0; factor = factor.add(new BigDecimal(0.000001))) {
