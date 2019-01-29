@@ -27,7 +27,7 @@ public class TryStrategyController {
      * @return
      */
     @PostMapping("/execute")
-    public BtResult execute(@RequestBody Object object) {
+    public BtResult execute(@RequestBody Object object) throws Exception{
         tryStrategyService.execute(object);
         return null;
     }

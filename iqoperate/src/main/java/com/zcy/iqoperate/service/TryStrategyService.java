@@ -17,7 +17,7 @@ public interface TryStrategyService {
      *
      * @param strategyFilterObject
      */
-    BtResult execute(Object strategyFilterObject);
+    BtResult execute(Object strategyFilterObject) throws InterruptedException;
 
     /**
      * 根据返回的蜡烛图尝试策略

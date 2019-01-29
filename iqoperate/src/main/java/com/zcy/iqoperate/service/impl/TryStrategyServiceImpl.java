@@ -7,7 +7,6 @@ import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
-import com.zcy.iqoperate.strategy.StrategyContinuousOverDelay;
 import com.zcy.iqoperate.strategy.StrategyLong1m;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.FileUtil;
@@ -62,7 +61,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
      * @param strategyFilterObject
      */
     @Override
-    public BtResult execute(Object strategyFilterObject) {
+    public BtResult execute(Object strategyFilterObject) throws InterruptedException {
 
         //清空请求蜡烛图的id集合
         candlesRequestIds.clear();
@@ -120,7 +119,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer dayIdSize = 24*60*60 / strategyFilter.getCandleSize();
 
         //id跳过个数
-        Integer skipIdSize = 12*60;
+        //Integer skipIdSize = 12*60;
+        Integer skipIdSize = 200;
 
         //获取candles循环次数 = candleDays * 2
         candlesCycleSize = candleDays * (dayIdSize / skipIdSize);
@@ -132,6 +132,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer candlesCycleSizeTemp = candlesCycleSize;
 
         for (int i = 0; i < candlesCycleSizeTemp; i++) {
+
+            //每隔10次，睡眠2s
+            if(i % 10 == 0){
+                Thread.sleep(5000L);
+            }
 
             String request_id = String.valueOf(System.currentTimeMillis() + i);
             candlesRequestIds.add(request_id);

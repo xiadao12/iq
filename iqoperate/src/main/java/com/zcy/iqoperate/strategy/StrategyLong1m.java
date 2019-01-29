@@ -30,7 +30,7 @@ public class StrategyLong1m {
         for (int preSize = 2; preSize <= 2; preSize++) {
 
             //遍历起止因子
-            for (BigDecimal factor = new BigDecimal(0.000000); factor.compareTo(new BigDecimal(0.0001)) < 0; factor = factor.add(new BigDecimal(0.000001))) {
+            for (BigDecimal factor = new BigDecimal(0.000000); factor.compareTo(new BigDecimal(0.00001)) < 0; factor = factor.add(new BigDecimal(0.000001))) {
 
                 //记录输赢的次数
                 Integer winNum = 0;
