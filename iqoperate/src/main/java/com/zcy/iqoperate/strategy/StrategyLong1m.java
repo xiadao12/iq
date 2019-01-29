@@ -30,7 +30,7 @@ public class StrategyLong1m {
         for (int preSize = 2; preSize <= 2; preSize++) {
 
             //遍历起止因子
-            for (BigDecimal factor = new BigDecimal(0.000000); factor.compareTo(new BigDecimal(0.00001)) < 0; factor = factor.add(new BigDecimal(0.000001))) {
+            for (BigDecimal factor = new BigDecimal(0.000000); factor.compareTo(new BigDecimal(0.00001)) < 0; factor = factor.add(new BigDecimal(0.00001))) {
 
                 //记录输赢的次数
                 Integer winNum = 0;
@@ -42,6 +42,10 @@ public class StrategyLong1m {
 
                 for (int i = 0 + 60; i < candles.size() - 60; i++) {
                     CandlesResponse.Candle candle = candles.get(i);
+
+/*                    if(DateUtil.timeStampToDateString(candle.getTo()*1000).equals("2019-01-16 17:16:00")){
+                        System.out.println();
+                    }*/
 
                     CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
@@ -63,15 +67,28 @@ public class StrategyLong1m {
                     //获取蜡烛涨跌
                     Integer trend = candle.getClose().compareTo(candles.get(i - 60).getClose());
 
+                    if(trend == 0){
+                        continue;
+                    }
+
                     //最后的几个是否是反向
                     Boolean preSame = true;
                     for (int j = 0; j < preSize; j++) {
+
+/*                        CandlesResponse.Candle mCandle = candles.get(i - j - 1);
+                        CandlesResponse.Candle nCandle = candles.get(i - j);
+
+                        //如果长蜡烛是涨
+                        Integer tempBidui = nCandle.getClose().compareTo(mCandle.getClose());
+                        */
 
                         CandleMessage mCandleMessage = CandleMessage.getCandleMessage(candles.get(i - j - 1));
                         CandleMessage nCandleMessage = CandleMessage.getCandleMessage(candles.get(i - j));
 
                         //如果长蜡烛是涨
                         Integer tempBidui = mCandleMessage.getEntity().compareTo(nCandleMessage.getEntity());
+
+
                         if (tempBidui.equals(trend) || tempBidui == 0) {
                             preSame = false;
                         }
@@ -81,12 +98,12 @@ public class StrategyLong1m {
                         //获取结果蜡烛,也就是下一个蜡烛
                         Integer resultTrend = candles.get(i + 60).getClose().compareTo(candle.getClose());
 
-                        if (resultTrend.equals(trend)) {
-                            lostNum++;
-                            lostTimeList.add(currentCandletoString);
-                        } else {
+                        if (!resultTrend.equals(trend) && resultTrend != 0) {
                             winNum++;
                             winTimeList.add(currentCandletoString);
+                        } else {
+                            lostNum++;
+                            lostTimeList.add(currentCandletoString);
                         }
                     }
 
