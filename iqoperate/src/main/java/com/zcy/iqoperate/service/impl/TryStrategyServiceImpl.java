@@ -8,6 +8,7 @@ import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
 import com.zcy.iqoperate.strategy.StrategyLong1m;
+import com.zcy.iqoperate.strategy.StrategyLong30s;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.FileUtil;
 import com.zcy.iqoperate.util.JsonUtil;
@@ -52,8 +53,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 /*    @Autowired
     StrategyContinuousOverDelay strategyContinuousOverDelay;*/
 
+/*    @Autowired
+    StrategyLong1m strategyLong1m = new StrategyLong1m();*/
+
     @Autowired
-    StrategyLong1m strategyLong1m = new StrategyLong1m();
+    StrategyLong30s strategyLong30s = new StrategyLong30s();
 
     /**
      * 执行
@@ -90,7 +94,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.add(candle);
             }
 
-            strategyLong1m.execute(allCandles, strategyFilterObject);
+            strategyLong30s.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
@@ -132,6 +136,8 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         Integer candlesCycleSizeTemp = candlesCycleSize;
 
         for (int i = 0; i < candlesCycleSizeTemp; i++) {
+
+            System.out.println("发送消息总次数 = " + candlesCycleSizeTemp + "   当前次数 = " + i);
 
             //每隔10次，睡眠2s
             if(i % 10 == 0){
@@ -211,7 +217,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //执行策略
-            strategyLong1m.execute(allCandles, strategyFilterObject);
+            strategyLong30s.execute(allCandles, strategyFilterObject);
         }
     }
 }
