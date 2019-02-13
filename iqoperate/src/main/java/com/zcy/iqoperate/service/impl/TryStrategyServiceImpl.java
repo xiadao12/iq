@@ -7,6 +7,7 @@ import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
+import com.zcy.iqoperate.strategy.StrategyContinuousLong;
 import com.zcy.iqoperate.strategy.StrategyLong1m;
 import com.zcy.iqoperate.strategy.StrategyLong30s;
 import com.zcy.iqoperate.util.DateUtil;
@@ -55,9 +56,12 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
 /*    @Autowired
     StrategyLong1m strategyLong1m = new StrategyLong1m();*/
+/*
+    @Autowired
+    StrategyLong30s strategyLong30s = new StrategyLong30s();*/
 
     @Autowired
-    StrategyLong30s strategyLong30s = new StrategyLong30s();
+    StrategyContinuousLong strategyContinuousLong = new StrategyContinuousLong();
 
     /**
      * 执行
@@ -94,7 +98,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.add(candle);
             }
 
-            strategyLong30s.execute(allCandles, strategyFilterObject);
+            strategyContinuousLong.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
@@ -217,7 +221,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //执行策略
-            strategyLong30s.execute(allCandles, strategyFilterObject);
+            strategyContinuousLong.execute(allCandles, strategyFilterObject);
         }
     }
 }
