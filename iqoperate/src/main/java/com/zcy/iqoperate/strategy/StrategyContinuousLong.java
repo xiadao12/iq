@@ -29,7 +29,7 @@ public class StrategyContinuousLong {
         //String content = "";
 
         //遍历符合蜡烛个数
-        for (Integer conformNumber = 4; conformNumber <= 5; conformNumber++) {
+        for (Integer conformNumber = 2; conformNumber <= 3; conformNumber++) {
             //遍历支付分钟数
             for (Integer payMin = 1; payMin <= 3; payMin++) {
                 //遍历总长度因子
@@ -105,7 +105,11 @@ public class StrategyContinuousLong {
                             //判断盈亏
                             //获取结果方向
                             Integer resultTrend = candles.get(i + payMin).getClose().subtract(currentCandle.getClose()).compareTo(new BigDecimal(0));
-                            if (resultTrend != 0 && !resultTrend.equals(currentTrend)) {
+                            if (resultTrend == 0) {
+                                continue;
+                            }
+
+                            if (!resultTrend.equals(currentTrend)) {
                                 winTimeList.add(payTimeString);
                             } else {
                                 lostTimeList.add(payTimeString);
