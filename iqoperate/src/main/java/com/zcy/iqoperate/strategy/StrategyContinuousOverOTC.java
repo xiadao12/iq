@@ -22,165 +22,194 @@ public class StrategyContinuousOverOTC {
 
         StrategyContinuousDoubleFilter strategyContinuousDoubleFilter = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousDoubleFilter.class);
 
-        //延迟几分钟购买
-        for (int delayMinutes = 1; delayMinutes <= 2; delayMinutes++) {
-            String content = "";
+        //分每周
+        List<List<CandlesResponse.Candle>> candlesWeekLists = new ArrayList<>();
+        //上一个蜡烛是否是周末蜡烛
+        Boolean preWeekCandle = false;
+        for(CandlesResponse.Candle candle : candles){
 
-            //连续蜡烛图个数以上（包含）
-            for (int minCandlenum = 0; minCandlenum <= 3; minCandlenum++) {
+            //判断是否是周末蜡烛
+            Boolean weekCandle = judgeOTCTime(candle.getTo() * 1000);
 
-                //所有蜡烛图长度因子
-                for (BigDecimal allFactor = new BigDecimal(0.0001);
-                     allFactor.compareTo(new BigDecimal(0.0005)) <= 0;
-                     allFactor = allFactor.add(new BigDecimal(0.00001))) {
+            //如果上一个不是周末蜡烛，而当前蜡烛是周末蜡烛，则创建集合存放蜡烛
+            if(!preWeekCandle && weekCandle){
+                List<CandlesResponse.Candle> weekCandleList = new ArrayList<>();
+                candlesWeekLists.add(weekCandleList);
+            }
 
-                    //反向的蜡烛图长度因子
-                    for (BigDecimal reverseFactor = new BigDecimal(0.00001);
-                         reverseFactor.compareTo(new BigDecimal(0.00001)) <= 0;
-                         reverseFactor = reverseFactor.add(new BigDecimal(0.00001))) {
+            //判断是否是周末的蜡烛
+            if(weekCandle){
+                //如果是周末蜡烛，则放入最后一个周蜡烛集合中
+                candlesWeekLists.get(candlesWeekLists.size() - 1).add(candle);
+            }
 
-                        System.out.println();
-                        System.out.println("延迟购买分钟 = " + delayMinutes);
-                        content = content + "延迟购买分钟  = " + delayMinutes;
+            preWeekCandle = weekCandle;
+        }
 
-                        System.out.println("最少的连续蜡烛数量 = " + minCandlenum);
-                        content = content + "最少的连续蜡烛数量  = " + minCandlenum;
+        //遍历周蜡烛集合
+        for(List<CandlesResponse.Candle> weekCandles : candlesWeekLists){
+            System.out.println("///////////////当前周时间为：" + DateUtil.timeStampToDateString(weekCandles.get(0).getTo() * 1000));
 
-                        System.out.println("所有蜡烛图长度因子 = " + allFactor);
-                        content = content + "所有蜡烛图长度因子  = " + allFactor;
+            //延迟几分钟购买
+            for (int delayMinutes = 1; delayMinutes <= 2; delayMinutes++) {
+                String content = "";
 
-                        System.out.println("反向的蜡烛图长度因子 = " + reverseFactor);
-                        content = content + "反向的蜡烛图长度因子  = " + reverseFactor;
+                //连续蜡烛图个数以上（包含）
+                for (int minCandlenum = 0; minCandlenum <= 3; minCandlenum++) {
 
-                        //记录赢输的时间点
-                        List<String> winTimeList = new ArrayList<>();
-                        List<String> lostTimeList = new ArrayList<>();
+                    //所有蜡烛图长度因子
+                    for (BigDecimal allFactor = new BigDecimal(0.0001);
+                         allFactor.compareTo(new BigDecimal(0.00025)) <= 0;
+                         allFactor = allFactor.add(new BigDecimal(0.00001))) {
 
-                        //连续蜡烛的涨跌方向
-                        Integer continuousTrend = null;
+                        //反向的蜡烛图长度因子
+                        for (BigDecimal reverseFactor = new BigDecimal(0.00001);
+                             reverseFactor.compareTo(new BigDecimal(0.00001)) <= 0;
+                             reverseFactor = reverseFactor.add(new BigDecimal(0.00001))) {
 
-                        //赋值第一个蜡烛
-                        //一个连续的蜡烛集合，默认将第一个蜡烛放在里面
-                        List<CandlesResponse.Candle> candlesResult = new ArrayList<>();
+                            System.out.println();
+                            System.out.println("延迟购买分钟 = " + delayMinutes);
+                            content = content + "延迟购买分钟  = " + delayMinutes;
 
-                        //上一个蜡烛图信息，初始化为第一个蜡烛
-                        CandleMessage preCandleMessage = null;
+                            System.out.println("最少的连续蜡烛数量 = " + minCandlenum);
+                            content = content + "最少的连续蜡烛数量  = " + minCandlenum;
 
-                        //遍历蜡烛
-                        for (int k = 0; k < candles.size() - delayMinutes; k++) {
+                            System.out.println("所有蜡烛图长度因子 = " + allFactor);
+                            content = content + "所有蜡烛图长度因子  = " + allFactor;
 
-                            //获取当前蜡烛
-                            CandlesResponse.Candle candle = candles.get(k);
+                            System.out.println("反向的蜡烛图长度因子 = " + reverseFactor);
+                            content = content + "反向的蜡烛图长度因子  = " + reverseFactor;
 
-                            //蜡烛信息
-                            CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+                            //记录赢输的时间点
+                            List<String> winTimeList = new ArrayList<>();
+                            List<String> lostTimeList = new ArrayList<>();
 
-                            //判断是否是第一个蜡烛或者符合周末时间
-                            if (k == 0 || !judgeOTCTime(candle.getTo() * 1000)) {
+                            //连续蜡烛的涨跌方向
+                            Integer continuousTrend = null;
 
-                                //连续蜡烛的涨跌方向
-                                continuousTrend = null;
+                            //赋值第一个蜡烛
+                            //一个连续的蜡烛集合，默认将第一个蜡烛放在里面
+                            List<CandlesResponse.Candle> candlesResult = new ArrayList<>();
 
-                                //赋值第一个蜡烛
-                                //一个连续的蜡烛集合，默认将第一个蜡烛放在里面
-                                candlesResult.clear();
-                                //清空集合后，放入蜡烛，是下一个集合的开始
-                                candlesResult.add(candle);
+                            //上一个蜡烛图信息，初始化为第一个蜡烛
+                            CandleMessage preCandleMessage = null;
 
-                                //上一个蜡烛图信息，初始化为第一个蜡烛
-                                preCandleMessage = candleMessage;
-                            }
+                            //遍历蜡烛
+                            for (int k = 0; k < weekCandles.size() - delayMinutes; k++) {
 
-                            //当前涨跌
-                            Integer currentTrend = candleMessage.getTrend();
+                                //获取当前蜡烛
+                                CandlesResponse.Candle candle = weekCandles.get(k);
 
-                            if (continuousTrend == null) {
-                                //和上一个一样涨跌，且不是平的
-                                if (currentTrend.equals(preCandleMessage.getTrend()) && !currentTrend.equals(0)) {
-                                    //则将蜡烛放到集合中
+                                //蜡烛信息
+                                CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
+
+                                //判断是否是第一个蜡烛或者符合周末时间
+                                if (k == 0 || !judgeOTCTime(candle.getTo() * 1000)) {
+
+                                    //连续蜡烛的涨跌方向
+                                    continuousTrend = null;
+
+                                    //赋值第一个蜡烛
+                                    //一个连续的蜡烛集合，默认将第一个蜡烛放在里面
+                                    candlesResult.clear();
+                                    //清空集合后，放入蜡烛，是下一个集合的开始
                                     candlesResult.add(candle);
+
+                                    //上一个蜡烛图信息，初始化为第一个蜡烛
+                                    preCandleMessage = candleMessage;
                                 }
-                                //如果和上一个蜡烛图不同
-                                else {
-                                    //反向的蜡烛最大长度
-                                    BigDecimal candleMaxSize = candle.getOpen().multiply(reverseFactor);
 
-                                    //符合连续蜡烛的最小长度
-                                    BigDecimal allCandleMinSize = candle.getOpen().multiply(allFactor);
+                                //当前涨跌
+                                Integer currentTrend = candleMessage.getTrend();
 
-                                    //连续蜡烛中最后一个蜡烛的close
-                                    BigDecimal lastCandleClose = candlesResult.get(candlesResult.size() - 1).getClose();
+                                if (continuousTrend == null) {
+                                    //和上一个一样涨跌，且不是平的
+                                    if (currentTrend.equals(preCandleMessage.getTrend()) && !currentTrend.equals(0)) {
+                                        //则将蜡烛放到集合中
+                                        candlesResult.add(candle);
+                                    }
+                                    //如果和上一个蜡烛图不同
+                                    else {
+                                        //反向的蜡烛最大长度
+                                        BigDecimal candleMaxSize = candle.getOpen().multiply(reverseFactor);
 
-                                    //连续蜡烛中第一个蜡烛的close
-                                    BigDecimal firstCandleOpen = candlesResult.get(0).getOpen();
+                                        //符合连续蜡烛的最小长度
+                                        BigDecimal allCandleMinSize = candle.getOpen().multiply(allFactor);
 
-                                    //获取总蜡烛长度
-                                    BigDecimal allEntity = lastCandleClose.subtract(firstCandleOpen).abs();
+                                        //连续蜡烛中最后一个蜡烛的close
+                                        BigDecimal lastCandleClose = candlesResult.get(candlesResult.size() - 1).getClose();
 
-                                    //判断连续个数,反向蜡烛实体长度,总蜡烛长度
-                                    if (
-                                            candlesResult.size() < minCandlenum
-                                                    ||
-                                                    candleMessage.getEntity().compareTo(candleMaxSize) > 0
-                                                    ||
-                                                    allEntity.compareTo(allCandleMinSize) < 0) {
+                                        //连续蜡烛中第一个蜡烛的close
+                                        BigDecimal firstCandleOpen = candlesResult.get(0).getOpen();
+
+                                        //获取总蜡烛长度
+                                        BigDecimal allEntity = lastCandleClose.subtract(firstCandleOpen).abs();
+
+                                        //判断连续个数,反向蜡烛实体长度,总蜡烛长度
+                                        if (
+                                                candlesResult.size() < minCandlenum
+                                                        ||
+                                                        candleMessage.getEntity().compareTo(candleMaxSize) > 0
+                                                        ||
+                                                        allEntity.compareTo(allCandleMinSize) < 0) {
+                                            candlesResult.clear();
+                                            continuousTrend = null;
+
+                                            //清空集合后，放入蜡烛，是下一个集合的开始
+                                            candlesResult.add(candle);
+                                        } else {
+                                            //获取连续蜡烛的涨跌
+                                            continuousTrend = preCandleMessage.getTrend();
+                                        }
+                                    }
+                                } else {
+                                    //////////////////////////////////////
+                                    //反向蜡烛下一个蜡烛的开始
+                                    BigDecimal buy = candle.getOpen();
+
+                                    //结果蜡烛
+                                    CandlesResponse.Candle resultCandle = weekCandles.get(k + delayMinutes - 1);
+
+                                    if ((continuousTrend > 0 && resultCandle.getClose().compareTo(buy) < 0) || (continuousTrend < 0 && resultCandle.getClose().compareTo(buy) > 0)) {
+
+                                        winTimeList.add(DateUtil.timeStampToDateString(preCandleMessage.getTo() * 1000));
+
                                         candlesResult.clear();
                                         continuousTrend = null;
 
                                         //清空集合后，放入蜡烛，是下一个集合的开始
                                         candlesResult.add(candle);
                                     } else {
-                                        //获取连续蜡烛的涨跌
-                                        continuousTrend = preCandleMessage.getTrend();
+                                        lostTimeList.add(DateUtil.timeStampToDateString(preCandleMessage.getTo() * 1000));
+
+                                        candlesResult.clear();
+                                        continuousTrend = null;
+
+                                        //清空集合后，放入蜡烛，是下一个集合的开始
+                                        candlesResult.add(candle);
                                     }
                                 }
-                            } else {
-                                //////////////////////////////////////
-                                //反向蜡烛下一个蜡烛的开始
-                                BigDecimal buy = candle.getOpen();
-
-                                //结果蜡烛
-                                CandlesResponse.Candle resultCandle = candles.get(k + delayMinutes - 1);
-
-                                if ((continuousTrend > 0 && resultCandle.getClose().compareTo(buy) < 0) || (continuousTrend < 0 && resultCandle.getClose().compareTo(buy) > 0)) {
-
-                                    winTimeList.add(DateUtil.timeStampToDateString(preCandleMessage.getTo() * 1000));
-
-                                    candlesResult.clear();
-                                    continuousTrend = null;
-
-                                    //清空集合后，放入蜡烛，是下一个集合的开始
-                                    candlesResult.add(candle);
-                                } else {
-                                    lostTimeList.add(DateUtil.timeStampToDateString(preCandleMessage.getTo() * 1000));
-
-                                    candlesResult.clear();
-                                    continuousTrend = null;
-
-                                    //清空集合后，放入蜡烛，是下一个集合的开始
-                                    candlesResult.add(candle);
-                                }
+                                preCandleMessage = candleMessage;
                             }
-                            preCandleMessage = candleMessage;
+
+                            System.out.println("winNum = " + winTimeList.size());
+                            System.out.println("lostNum = " + lostTimeList.size());
+                            System.out.println("winTimeList = " + winTimeList);
+                            System.out.println("lostTimeList = " + lostTimeList);
+
+                            content = content + "\nwinNum = " + winTimeList.size() + "\n";
+                            content = content + "lostNum = " + lostTimeList.size() + "\n";
+                            content = content + "winTimeList = " + lostTimeList + "\n";
+                            content = content + "lostTimeList = " + lostTimeList + "\n";
                         }
-
-                        System.out.println("winNum = " + winTimeList.size());
-                        System.out.println("lostNum = " + lostTimeList.size());
-                        System.out.println("winTimeList = " + winTimeList);
-                        System.out.println("lostTimeList = " + lostTimeList);
-
-                        content = content + "\nwinNum = " + winTimeList.size() + "\n";
-                        content = content + "lostNum = " + lostTimeList.size() + "\n";
-                        content = content + "winTimeList = " + lostTimeList + "\n";
-                        content = content + "lostTimeList = " + lostTimeList + "\n";
                     }
+
                 }
 
-            }
-
-            //创建策略结果文件
-            if (strategyContinuousDoubleFilter.getCreateResultFile()) {
-                FileUtil.createFile(content, "D:/iq", "StrategyContinuousOverDelay_" + delayMinutes + strategyContinuousDoubleFilter.getActiveId() + ".json");
+                //创建策略结果文件
+                if (strategyContinuousDoubleFilter.getCreateResultFile()) {
+                    FileUtil.createFile(content, "D:/iq", "StrategyContinuousOverDelay_" + delayMinutes + strategyContinuousDoubleFilter.getActiveId() + ".json");
+                }
             }
         }
 
