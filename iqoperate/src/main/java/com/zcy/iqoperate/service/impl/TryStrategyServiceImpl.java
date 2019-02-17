@@ -65,7 +65,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
     StrategyShadowLineEnough strategyShadowLineEnough = new StrategyShadowLineEnough();*/
 
     @Autowired
-    StrategyContinuousOverDelay strategyContinuousOverDelay;
+    StrategyContinuousOver strategyContinuousOver;
 
     /**
      * 执行
@@ -102,7 +102,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.add(candle);
             }
 
-            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
+            strategyContinuousOver.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
@@ -225,7 +225,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //执行策略
-            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
+            strategyContinuousOver.execute(allCandles, strategyFilterObject);
         }
     }
 }
