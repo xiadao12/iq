@@ -7,10 +7,7 @@ import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.TryStrategyService;
 import com.zcy.iqoperate.service.WebsocketService;
-import com.zcy.iqoperate.strategy.StrategyContinuousLong;
-import com.zcy.iqoperate.strategy.StrategyLong1m;
-import com.zcy.iqoperate.strategy.StrategyLong30s;
-import com.zcy.iqoperate.strategy.StrategyShadowLineEnough;
+import com.zcy.iqoperate.strategy.*;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.FileUtil;
 import com.zcy.iqoperate.util.JsonUtil;
@@ -64,8 +61,11 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 /*    @Autowired
     StrategyContinuousLong strategyContinuousLong = new StrategyContinuousLong();*/
 
+/*    @Autowired
+    StrategyShadowLineEnough strategyShadowLineEnough = new StrategyShadowLineEnough();*/
+
     @Autowired
-    StrategyShadowLineEnough strategyShadowLineEnough = new StrategyShadowLineEnough();
+    StrategyContinuousOverDelay strategyContinuousOverDelay;
 
     /**
      * 执行
@@ -90,19 +90,19 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         }
 
         //如果是从文件中读取candles
-        if(strategyFilter.getReadCandlesFromFile()){
+        if (strategyFilter.getReadCandlesFromFile()) {
 
             //从文件读取蜡烛集合
-            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles_"+strategyFilter.getActiveId()+".json", List.class);
+            List<Map> fileCandlesMapList = (List) FileUtil.readFileToObject("D:/iq/candles_" + strategyFilter.getActiveId() + ".json", List.class);
 
             //将读取的蜡烛类型转换
             List<CandlesResponse.Candle> allCandles = new ArrayList<>();
-            for(Map map : fileCandlesMapList){
+            for (Map map : fileCandlesMapList) {
                 CandlesResponse.Candle candle = JsonUtil.convertValue(map, CandlesResponse.Candle.class);
                 allCandles.add(candle);
             }
 
-            strategyShadowLineEnough.execute(allCandles, strategyFilterObject);
+            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
@@ -128,7 +128,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
         // 12*60
         //每天有的个数
-        Integer dayIdSize = 24*60*60 / strategyFilter.getCandleSize();
+        Integer dayIdSize = 24 * 60 * 60 / strategyFilter.getCandleSize();
 
         //id跳过个数
         //Integer skipIdSize = 12*60;
@@ -148,7 +148,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             System.out.println("发送消息总次数 = " + candlesCycleSizeTemp + "   当前次数 = " + i);
 
             //每隔10次，睡眠2s
-            if(i % 10 == 0){
+            if (i % 10 == 0) {
                 Thread.sleep(5000L);
             }
 
@@ -199,7 +199,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
         candlesMap.put(candlesResponse.getRequest_id(), candles);
 
         //查询天数自减，
-        candlesCycleSize --;
+        candlesCycleSize--;
 
         //直到0时说明所有蜡烛信息收集完毕
         if (candlesCycleSize.equals(0)) {
@@ -212,7 +212,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 
             //最后一个蜡烛图时间
             Long lastCandleFrom = allCandles.get(allCandles.size() - 1).getFrom();
-            System.out.println("最后一个蜡烛图时间是："  + DateUtil.timeStampToDateString(lastCandleFrom * 1000));
+            System.out.println("最后一个蜡烛图时间是：" + DateUtil.timeStampToDateString(lastCandleFrom * 1000));
 
             //System.out.println("所有蜡烛图信息：" + JsonUtil.ObjectToJsonString(allCandles));
 
@@ -220,12 +220,12 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                     = JsonUtil.convertValue(strategyFilterObject, StrategyContinuousDoubleFilter.class);
 
             //创建蜡烛图集合文件
-            if(strategyContinuousDoubleFilter.getCreateCandlesFile()){
-                FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(allCandles), "D:/iq","candles_" + strategyContinuousDoubleFilter.getActiveId() + ".json");
+            if (strategyContinuousDoubleFilter.getCreateCandlesFile()) {
+                FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(allCandles), "D:/iq", "candles_" + strategyContinuousDoubleFilter.getActiveId() + ".json");
             }
 
             //执行策略
-            strategyShadowLineEnough.execute(allCandles, strategyFilterObject);
+            strategyContinuousOverDelay.execute(allCandles, strategyFilterObject);
         }
     }
 }
