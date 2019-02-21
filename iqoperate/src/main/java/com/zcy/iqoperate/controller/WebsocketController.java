@@ -26,7 +26,7 @@ public class WebsocketController {
      * @param message
      */
     @PostMapping("/receiveMessage")
-    public void receiveMessage(String message) {
+    public void receiveMessage(String message) throws Exception{
         logger.info("接收到消息并开始处理：" + message);
         dealMessageService.dealMessage(message);
     }

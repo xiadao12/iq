@@ -5,6 +5,7 @@ import com.zcy.iqoperate.model.response.CandleGeneratedResponse;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.model.response.TimeSyncResponse;
 import com.zcy.iqoperate.service.DealMessageService;
+import com.zcy.iqoperate.service.OtcCandlesService;
 import com.zcy.iqoperate.service.TryStrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,16 @@ public class DealMessageServiceImpl implements DealMessageService {
     @Autowired
     TryStrategyService tryStrategyService;
 
+    @Autowired
+    OtcCandlesService otcCandlesService;
+
     /**
      * 处理接收到的信息
      *
      * @param message
      */
     @Override
-    public void dealMessage(String message) {
+    public void dealMessage(String message) throws Exception{
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             //判断是什么信息
@@ -103,11 +107,12 @@ public class DealMessageServiceImpl implements DealMessageService {
      *
      * @param candlesResponse
      */
-    public void dealCandles(CandlesResponse candlesResponse) {
+    public void dealCandles(CandlesResponse candlesResponse) throws Exception{
         if (candlesResponse == null) {
             return;
         }
 
-        tryStrategyService.strategy(candlesResponse);
+        //tryStrategyService.strategy(candlesResponse);
+        otcCandlesService.receiveCandles(candlesResponse);
     }
 }

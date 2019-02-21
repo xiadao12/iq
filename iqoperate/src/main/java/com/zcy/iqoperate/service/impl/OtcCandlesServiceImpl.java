@@ -3,26 +3,56 @@ package com.zcy.iqoperate.service.impl;
 import com.zcy.iqoperate.core.BtResult;
 import com.zcy.iqoperate.filter.CandlesFilter;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
+import com.zcy.iqoperate.model.response.CandlesResponse;
+import com.zcy.iqoperate.service.OtcCandlesService;
 import com.zcy.iqoperate.service.WebsocketService;
+import com.zcy.iqoperate.strategy.StrategyContinuousOverOTC;
+import com.zcy.iqoperate.util.DateUtil;
+import com.zcy.iqoperate.util.FileUtil;
+import com.zcy.iqoperate.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 获取otc蜡烛集合
  * create date : 2019/1/7
  */
 @Service
-public class OtcCandlesServiceImpl {
+public class OtcCandlesServiceImpl implements OtcCandlesService {
 
     @Autowired
     private WebsocketService websocketService;
 
+    //请求的第一个id
+    public static String firstRequestId;
+
+    //请求的最后一个id
+    public static String lastRequestId;
+
+    //请求的第一个结束时间
+    public static Long firstTo = null;
+
+    //请求的最后一个结束时间
+    public static Long lastTo = null;
+
+    //每次查询个数
+    public static Integer perSize;
+
+    //蜡烛结束时间to与蜡烛集合的map，用于存放接收到的蜡烛对应关系
+    public Map<Long, CandlesResponse.Candle> toCandleMap = new HashMap<>();
+
     /**
-     * 执行
+     * 发送请求获取蜡烛集合
      *
      * @param candlesFilter
      */
-    BtResult execute(CandlesFilter candlesFilter) throws Exception {
+    @Override
+    public BtResult sendGetCandles(CandlesFilter candlesFilter) throws Exception {
 
         //每个蜡烛图秒数
         Integer candleSize = candlesFilter.getCandleSize();
@@ -40,15 +70,14 @@ public class OtcCandlesServiceImpl {
         }
 
         //请求的id
-        Long currentId = candlesFilter.getRequestId();
+        Long currentId = candlesFilter.getCurrentId();
         if (currentId == null) {
             return BtResult.ERROR("未传请求的id");
         }
 
         //每次查询个数
-        Integer perSize = 1;
+        perSize = 50;
 
-        // 12*60
         //每天有的个数
         Integer dayIdSize = 24 * 60 * 60 / candleSize;
 
@@ -67,10 +96,17 @@ public class OtcCandlesServiceImpl {
 
             //每隔10次，睡眠2s
             if (i % 10 == 0) {
-                Thread.sleep(5000L);
+                Thread.sleep(1000L);
             }
 
             String request_id = String.valueOf(System.currentTimeMillis() + i);
+            if(i == 0){
+                firstRequestId = request_id;
+            }
+            if(i == candlesCycleSize - 1){
+                //最后一个请求id
+                lastRequestId = request_id;
+            }
 
             GetCandlesRequest getCandlesRequest = new GetCandlesRequest(
                     request_id,
@@ -84,7 +120,129 @@ public class OtcCandlesServiceImpl {
             currentId = currentId + perSize;
         }
 
+        System.out.println("发送请求消息结束，正在收集所有信息.....");
+
+        //存放一个周末的蜡烛集合
+        List<CandlesResponse.Candle> weekCandles = new ArrayList<>();
+
+        Long j = null;
+        while(true){
+            if(firstTo == null){
+                Thread.sleep(2000);
+                continue;
+            }
+
+            if(j == null){
+                j = firstTo;
+            }
+
+            //从map中获取蜡烛
+            CandlesResponse.Candle candle = null;
+
+            //获取蜡烛，允许重试5次
+            //Integer retry = 5;
+            //while(retry > 0){
+            while (true) {
+                candle = toCandleMap.get(j);
+                if (candle != null) {
+                    break;
+                }
+
+                Thread.sleep(2);
+
+                //retry --;
+            }
+
+            //判断是否符合时间
+            if (!StrategyContinuousOverOTC.judgeOTCTime(candle.getTo() * 1000, null, null)) {
+                //将weekCandles集合中的蜡烛保存到文件中
+                if (weekCandles != null && weekCandles.size() > 0) {
+                    //获取周六的日期
+                    String firstTime = DateUtil.timeStampToDateString(weekCandles.get(0).getTo());
+                    firstTime = firstTime.substring(0,firstTime.indexOf(" "));
+                    String fileName = "otc_" + activeId + "_" + firstTime + ".json";
+                    //创建蜡烛图集合文件
+                    FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(weekCandles),"D:/iq/otc/candles/", fileName);
+                    System.out.println("生成" + firstTime);
+                }
+
+                //清空集合
+                weekCandles.clear();
+
+                //如果不符合时间,则从map中移除
+                toCandleMap.remove(j);
+                continue;
+            }
+
+            //判断第一个蜡烛是否是在周末，如果在，j=j+candleSize，直接略过三天
+            if (j == firstTo) {
+                j = j + 3 * dayIdSize;
+                //j = 10L;
+                System.out.println("第一个蜡烛是周末，跳过三天");
+                continue;
+            }
+
+            //添加到集合中
+            weekCandles.add(candle);
+            System.out.println("将蜡烛加入到集合中");
+            //则从map中移除
+            toCandleMap.remove(j);
+
+            if(lastTo != null && j==lastTo){
+                break;
+            }
+            j = j + candleSize;
+        }
+
+        System.out.println("结束蜡烛集合收集");
+
         return BtResult.OK();
     }
 
+
+    /**
+     * 接收请求到的蜡烛集合
+     *
+     * @throws Exception
+     */
+    @Override
+    public void receiveCandles(CandlesResponse candlesResponse) throws Exception {
+
+        //判断传参
+        if (candlesResponse == null) {
+            return;
+        }
+
+        CandlesResponse.Msg msg = candlesResponse.getMsg();
+        if (msg == null) {
+            return;
+        }
+
+        List<CandlesResponse.Candle> candles = msg.getCandles();
+        if (candles == null || candles.size() <= 0) {
+            return;
+        }
+
+        String requestId = candlesResponse.getRequest_id();
+
+        //获取请求的第一个结束时间
+        if (requestId.equals(firstRequestId)) {
+            firstTo = candles.get(0).getTo();
+        } else {
+            //candles去除第一个，解决造成重复的问题
+            //candles.remove(0);
+        }
+
+        //请求的最后一个结束时间
+        if (requestId.equals(lastRequestId)) {
+            lastTo = candles.get(candles.size() - 1).getTo();
+        }
+
+        //Long i = firstCurrentId + 1; i <= lastCurrentId; i++
+
+        for (CandlesResponse.Candle candle : candles) {
+            toCandleMap.put(candle.getTo(), candle);
+        }
+
+    }
 }

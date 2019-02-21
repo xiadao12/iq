@@ -13,7 +13,7 @@ public class CandlesFilter {
     private Integer candleDays;
 
     //当前id
-    private Long requestId;
+    private Long currentId;
 
     //蜡烛尺寸，以秒为单位，默认60
     Integer candleSize = 60;
@@ -34,12 +34,12 @@ public class CandlesFilter {
         this.candleDays = candleDays;
     }
 
-    public Long getRequestId() {
-        return requestId;
+    public Long getCurrentId() {
+        return currentId;
     }
 
-    public void setRequestId(Long requestId) {
-        this.requestId = requestId;
+    public void setCurrentId(Long currentId) {
+        this.currentId = currentId;
     }
 
     public Integer getCandleSize() {

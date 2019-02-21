@@ -11,5 +11,5 @@ public interface DealMessageService {
      *
      * @param message
      */
-    void dealMessage(String message);
+    void dealMessage(String message) throws Exception;
 }

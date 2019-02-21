@@ -1,7 +1,6 @@
 package com.zcy.iqoperate.controller;
 
 import com.zcy.iqoperate.core.BtResult;
-import com.zcy.iqoperate.filter.CandlesFilter;
 import com.zcy.iqoperate.service.TryStrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,17 +30,6 @@ public class TryStrategyController {
     public BtResult execute(@RequestBody Object object) throws Exception {
         tryStrategyService.execute(object);
         return null;
-    }
-
-    /**
-     * 获取otc蜡烛图
-     *
-     * @param candlesFilter
-     * @return
-     * @throws Exception
-     */
-    public BtResult getOtcCandles(CandlesFilter candlesFilter) throws Exception {
-        return BtResult.OK("获取otc蜡烛图成功");
     }
 
 }

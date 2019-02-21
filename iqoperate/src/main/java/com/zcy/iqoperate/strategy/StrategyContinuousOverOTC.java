@@ -29,7 +29,7 @@ public class StrategyContinuousOverOTC {
         for(CandlesResponse.Candle candle : candles){
 
             //判断是否是周末蜡烛
-            Boolean weekCandle = judgeOTCTime(candle.getTo() * 1000);
+            Boolean weekCandle = judgeOTCTime(candle.getTo() * 1000, null, null);
 
             //如果上一个不是周末蜡烛，而当前蜡烛是周末蜡烛，则创建集合存放蜡烛
             if(!preWeekCandle && weekCandle){
@@ -104,7 +104,7 @@ public class StrategyContinuousOverOTC {
                                 CandleMessage candleMessage = CandleMessage.getCandleMessage(candle);
 
                                 //判断是否是第一个蜡烛或者符合周末时间
-                                if (k == 0 || !judgeOTCTime(candle.getTo() * 1000)) {
+                                if (k == 0 || !judgeOTCTime(candle.getTo() * 1000,null,null)) {
 
                                     //连续蜡烛的涨跌方向
                                     continuousTrend = null;
@@ -219,11 +219,23 @@ public class StrategyContinuousOverOTC {
      * 判断是否是otc时间，时间区间[周六 08:00:00 - 23:59:59，周日 全天，周一 00:00:00 - 04:00:00]
      *
      * @param time 毫秒
+     * @param saturdayStartTime 周六开始时间 默认07:00:00
+     * @param mondayEndTime 周一结束时间
      * @return
      */
-    public static Boolean judgeOTCTime(Long time) {
+    public static Boolean judgeOTCTime(Long time,String saturdayStartTime,String mondayEndTime) {
 
         //return true;
+
+        //周六开始时间 默认06
+        if(saturdayStartTime == null){
+            saturdayStartTime = "08:00:00";
+        }
+
+        //周六开始时间 默认06
+        if(mondayEndTime == null){
+            mondayEndTime = "04:00:00";
+        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
@@ -238,7 +250,7 @@ public class StrategyContinuousOverOTC {
         String dateTimeString = dateStringArray[1];
 
         //如果是周六，判断时间是否大于08:00:00
-        if (weekDay.equals(7) && dateTimeString.compareTo("08:00:00") >= 0) {
+        if (weekDay.equals(7) && dateTimeString.compareTo(saturdayStartTime) >= 0) {
             return true;
         }
 
@@ -248,7 +260,7 @@ public class StrategyContinuousOverOTC {
         }
 
         //如果是周一，则小于04:00:00
-        if (weekDay.equals(2) && dateTimeString.compareTo("04:00:00") <= 0) {
+        if (weekDay.equals(2) && dateTimeString.compareTo(mondayEndTime) <= 0) {
             return true;
         }
 
