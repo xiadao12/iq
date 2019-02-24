@@ -166,7 +166,7 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
                         firstTime = firstTime.substring(0, firstTime.indexOf(" "));
                         String fileName = "otc_" + activeId + "_" + firstTime + ".json";
                         //创建蜡烛图集合文件
-                        FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(weekCandles), "D:/iq/otc/candles/", fileName);
+                        FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(weekCandles), "D:/iq/otc/candles/"+activeId+"/", fileName);
                         System.out.println("生成" + firstTime);
                     }else {
                         System.out.println("蜡烛集合不连续，无法生成文件");
