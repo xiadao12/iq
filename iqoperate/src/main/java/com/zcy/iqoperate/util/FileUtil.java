@@ -3,6 +3,9 @@ package com.zcy.iqoperate.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * create date : 2019/1/19
@@ -234,5 +237,31 @@ public class FileUtil {
             result.append(SPACE);
         }
         return result.toString();
+    }
+
+    /**
+     * 根据目录获取文件绝对路径集合
+     *
+     * @param dirPath
+     * @return
+     */
+    public static List<String> getAbsolutePathsByDir(String dirPath){
+
+        //处理目录路径
+        dirPath = dirPath.replaceAll("\\\\","/");
+        //去掉最后一个分隔符
+        if(dirPath.lastIndexOf("/") == dirPath.length() - 1){
+            dirPath = dirPath.substring(0,dirPath.lastIndexOf("/"));
+        }
+
+        List<String> result = new ArrayList<>();
+
+        String[] fileArray = new File(dirPath).list();
+        List<String> filePathList = Arrays.asList(fileArray);
+        for(String filePath : filePathList){
+            result.add(dirPath + "/" + filePath);
+        }
+
+        return result;
     }
 }

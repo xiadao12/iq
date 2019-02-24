@@ -1,6 +1,10 @@
 package com.zcy.iqoperate.temp;
 
+import com.zcy.iqoperate.util.ListUtil;
+
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * create date : 2019/1/9
@@ -8,8 +12,12 @@ import java.io.*;
 public class Test {
     public static void main(String[] args) throws IOException {
 
-        String firstTime = "abcefgd efg";
-        System.out.println(firstTime.substring(0,firstTime.indexOf(" ")));
+        //设置文件集合
+        //String[] fileArray = new File("D:\\iq\\otc\\candles\\" + 76).list();
 
+        String[] fileArray = new String[]{"z","d","a","f"};
+        List<String> list = Arrays.asList(fileArray);
+        ListUtil.order(list,true);
+        System.out.println(list);
     }
 }
