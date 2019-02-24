@@ -3,7 +3,7 @@ package com.zcy.iqoperate.controller;
 import com.zcy.iqoperate.core.BtResult;
 import com.zcy.iqoperate.filter.CandlesFilter;
 import com.zcy.iqoperate.service.OtcCandlesService;
-import com.zcy.iqoperate.strategy.StrategyContinuousOverOTCFromFile;
+import com.zcy.iqoperate.strategy.StrategyShadowLineEnoughOTC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +20,18 @@ public class OtcController {
     @Autowired
     OtcCandlesService otcCandlesService;
 
+/*    @Autowired
+    StrategyContinuousOverOTCFromFile strategyContinuousOverOTCFromFile;*/
+
+/*    @Autowired
+    StrategyLongContinuousOverOTCFromFile strategyLongContinuousOverOTCFromFile;*/
+/*
     @Autowired
-    StrategyContinuousOverOTCFromFile strategyContinuousOverOTCFromFile;
+    StrategyContinuousLongOTCFromFile strategyContinuousLongOTCFromFile;*/
+
+    @Autowired
+    StrategyShadowLineEnoughOTC strategyShadowLineEnoughOTC;
+
 
     /**
      * 获取otc蜡烛图
@@ -37,12 +47,13 @@ public class OtcController {
 
     /**
      * 连续策略
+     *
      * @param object
      * @return
      */
     @PostMapping("/otcStrategy")
     public BtResult otcStrategy(@RequestBody Object object) {
-        strategyContinuousOverOTCFromFile.execute(object);
+        strategyShadowLineEnoughOTC.execute(object);
         return BtResult.OK();
     }
 
