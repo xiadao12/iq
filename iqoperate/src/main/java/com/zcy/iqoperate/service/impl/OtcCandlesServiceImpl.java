@@ -13,10 +13,7 @@ import com.zcy.iqoperate.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 获取otc蜡烛集合
@@ -44,7 +41,7 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
     public static Integer perSize;
 
     //蜡烛结束时间to与蜡烛集合的map，用于存放接收到的蜡烛对应关系
-    public Map<Long, CandlesResponse.Candle> toCandleMap = new HashMap<>();
+    public Map<Long, CandlesResponse.Candle> toCandleMap = new LinkedHashMap<>();
 
     /**
      * 发送请求获取蜡烛集合
@@ -100,10 +97,10 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
             }
 
             String request_id = String.valueOf(System.currentTimeMillis() + i);
-            if(i == 0){
+            if (i == 0) {
                 firstRequestId = request_id;
             }
-            if(i == candlesCycleSize - 1){
+            if (i == candlesCycleSize - 1) {
                 //最后一个请求id
                 lastRequestId = request_id;
             }
@@ -126,14 +123,18 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
         List<CandlesResponse.Candle> weekCandles = new ArrayList<>();
 
         Long j = null;
-        while(true){
-            if(firstTo == null){
+        while (true) {
+            if (firstTo == null) {
                 Thread.sleep(2000);
                 continue;
             }
 
-            if(j == null){
+            if (j == null) {
                 j = firstTo;
+            }
+
+            if (lastTo != null && j > lastTo) {
+                break;
             }
 
             //从map中获取蜡烛
@@ -153,17 +154,23 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
                 //retry --;
             }
 
-            //判断是否符合时间
+            //判断是否符合时间，如果不符合时间
             if (!StrategyContinuousOverOTC.judgeOTCTime(candle.getTo() * 1000, null, null)) {
                 //将weekCandles集合中的蜡烛保存到文件中
                 if (weekCandles != null && weekCandles.size() > 0) {
-                    //获取周六的日期
-                    String firstTime = DateUtil.timeStampToDateString(weekCandles.get(0).getTo());
-                    firstTime = firstTime.substring(0,firstTime.indexOf(" "));
-                    String fileName = "otc_" + activeId + "_" + firstTime + ".json";
-                    //创建蜡烛图集合文件
-                    FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(weekCandles),"D:/iq/otc/candles/", fileName);
-                    System.out.println("生成" + firstTime);
+
+                    //判断是否是连续的
+                    if(judgeCandlesContinue(weekCandles,candleSize)){
+                        //获取周六的日期
+                        String firstTime = DateUtil.timeStampToDateString(weekCandles.get(0).getTo() * 1000);
+                        firstTime = firstTime.substring(0, firstTime.indexOf(" "));
+                        String fileName = "otc_" + activeId + "_" + firstTime + ".json";
+                        //创建蜡烛图集合文件
+                        FileUtil.createJsonFile(JsonUtil.ObjectToJsonString(weekCandles), "D:/iq/otc/candles/", fileName);
+                        System.out.println("生成" + firstTime);
+                    }else {
+                        System.out.println("蜡烛集合不连续，无法生成文件");
+                    }
                 }
 
                 //清空集合
@@ -171,6 +178,8 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
 
                 //如果不符合时间,则从map中移除
                 toCandleMap.remove(j);
+
+                j = j + candleSize;
                 continue;
             }
 
@@ -184,17 +193,17 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
 
             //添加到集合中
             weekCandles.add(candle);
-            System.out.println("将蜡烛加入到集合中");
+            System.out.println("将结束时间为" + candle.getTo() + "蜡烛加入到集合中");
             //则从map中移除
             toCandleMap.remove(j);
 
-            if(lastTo != null && j==lastTo){
-                break;
-            }
             j = j + candleSize;
         }
 
-        System.out.println("结束蜡烛集合收集");
+        System.out.println("-------------结束蜡烛集合收集-------------");
+
+        System.out.println("第一个蜡烛时间是：" + DateUtil.timeStampToDateString(firstTo * 1000));
+        System.out.println("最后一个蜡烛时间是：" + DateUtil.timeStampToDateString(lastTo * 1000));
 
         return BtResult.OK();
     }
@@ -244,5 +253,38 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
             toCandleMap.put(candle.getTo(), candle);
         }
 
+    }
+
+    /**
+     * 判断蜡烛是否是连续的
+     * @param candles
+     * @param candleSize
+     * @return
+     */
+    private Boolean judgeCandlesContinue(List<CandlesResponse.Candle> candles, Integer candleSize){
+
+        if(candles == null || candles.size() <= 0){
+            return false;
+        }
+
+        //记录上一个蜡烛的to
+        Long preTo = null;
+        for(CandlesResponse.Candle candle : candles){
+            Long to = candle.getTo();
+
+            if(preTo == null){
+                preTo = to;
+                continue;
+            }
+
+            if(!to.equals(preTo + candleSize)){
+                return false;
+            }
+
+            preTo = to;
+
+        }
+
+        return true;
     }
 }
