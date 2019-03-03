@@ -1,5 +1,6 @@
 package com.zcy.iqoperate.strategy;
 
+import com.zcy.iqoperate.core.StrategyUtil;
 import com.zcy.iqoperate.filter.StrategyBaseFilter;
 import com.zcy.iqoperate.filter.StrategyLongFilter;
 import com.zcy.iqoperate.model.CandleMessage;

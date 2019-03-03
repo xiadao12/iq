@@ -1,4 +1,4 @@
-package com.zcy.iqoperate.strategy;
+package com.zcy.iqoperate.core;
 
 import com.zcy.iqoperate.filter.StrategyBaseFilter;
 import com.zcy.iqoperate.model.response.CandlesResponse;
@@ -86,7 +86,12 @@ public class StrategyUtil {
         return currentProcess;
     }
 
-    //判断是否是在活跃时间内
+    /**
+     * 判断是否是在活跃时间内
+     * @param activeTimes
+     * @param candle
+     * @return
+     */
     public static Boolean judgeActivetime(List<StrategyBaseFilter.ActiveTime> activeTimes, CandlesResponse.Candle candle) {
 
         //如果没有活跃时间集合，则默认返回true
