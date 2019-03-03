@@ -1,12 +1,12 @@
 package com.zcy.iqoperate.service.impl;
 
 import com.zcy.iqoperate.core.BtResult;
+import com.zcy.iqoperate.core.IqDateUtil;
 import com.zcy.iqoperate.filter.CandlesFilter;
 import com.zcy.iqoperate.model.request.GetCandlesRequest;
 import com.zcy.iqoperate.model.response.CandlesResponse;
 import com.zcy.iqoperate.service.OtcCandlesService;
 import com.zcy.iqoperate.service.WebsocketService;
-import com.zcy.iqoperate.strategy.StrategyContinuousOverOTC;
 import com.zcy.iqoperate.util.DateUtil;
 import com.zcy.iqoperate.util.FileUtil;
 import com.zcy.iqoperate.util.JsonUtil;
@@ -155,7 +155,7 @@ public class OtcCandlesServiceImpl implements OtcCandlesService {
             }
 
             //判断是否符合时间，如果不符合时间
-            if (!StrategyContinuousOverOTC.judgeOTCTime(candle.getTo() * 1000, null, null)) {
+            if (!IqDateUtil.judgeOTCTime(candle.getTo() * 1000, null, null)) {
                 //将weekCandles集合中的蜡烛保存到文件中
                 if (weekCandles != null && weekCandles.size() > 0) {
 
