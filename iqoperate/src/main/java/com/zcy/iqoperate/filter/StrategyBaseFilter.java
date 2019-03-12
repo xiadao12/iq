@@ -135,6 +135,21 @@ public class StrategyBaseFilter {
         //每天活跃结束时间 05:00:00
         private String activeEndTimeString;
 
+        /**
+         * 默认构造方法
+         */
+        public ActiveTime(){}
+
+        /**
+         * 构造方法
+         * @param activeStartTimeString
+         * @param activeEndTimeString
+         */
+        public ActiveTime(String activeStartTimeString, String activeEndTimeString){
+            this.activeStartTimeString = activeStartTimeString;
+            this.activeEndTimeString = activeEndTimeString;
+        }
+
         public String getActiveStartTimeString() {
             return activeStartTimeString;
         }
