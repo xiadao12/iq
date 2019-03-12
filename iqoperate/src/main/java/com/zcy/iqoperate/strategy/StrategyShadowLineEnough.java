@@ -15,9 +15,9 @@ import java.util.List;
  * create date : 2019/1/19
  */
 @Component
-public class StrategyShadowLineEnough {
+public class StrategyShadowLineEnough implements StrategyBase{
 
-    public void execute(List<CandlesResponse.Candle> candles, Object ttt) {
+    public void execute(List<CandlesResponse.Candle> candles, Object strategyFilterObject) {
 
 /*        //符合长度的主影线长度因子
         BigDecimal conformMainShadowFactor = new BigDecimal(0.0001);

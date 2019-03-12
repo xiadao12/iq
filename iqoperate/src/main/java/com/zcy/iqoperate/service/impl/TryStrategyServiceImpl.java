@@ -61,14 +61,14 @@ public class TryStrategyServiceImpl implements TryStrategyService {
 /*    @Autowired
     StrategyContinuousLong strategyContinuousLong = new StrategyContinuousLong();*/
 
-/*    @Autowired
-    StrategyShadowLineEnough strategyShadowLineEnough = new StrategyShadowLineEnough();*/
+    @Autowired
+    StrategyShadowLineEnough strategy = new StrategyShadowLineEnough();
 
 /*    @Autowired
     StrategyContinuousOver strategyContinuousOver;*/
 
-    @Autowired
-    StrategyContinuousOverOTC strategyContinuousOverOTC;
+/*    @Autowired
+    StrategyContinuousOverOTC strategyContinuousOverOTC;*/
 
     /**
      * 执行
@@ -105,7 +105,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
                 allCandles.add(candle);
             }
 
-            strategyContinuousOverOTC.execute(allCandles, strategyFilterObject);
+            strategy.execute(allCandles, strategyFilterObject);
             return BtResult.OK();
         }
 
@@ -228,7 +228,7 @@ public class TryStrategyServiceImpl implements TryStrategyService {
             }
 
             //执行策略
-            strategyContinuousOverOTC.execute(allCandles, strategyFilterObject);
+            strategy.execute(allCandles, strategyFilterObject);
         }
     }
 }
