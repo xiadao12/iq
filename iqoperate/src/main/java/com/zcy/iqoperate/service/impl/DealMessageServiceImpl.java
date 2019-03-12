@@ -112,7 +112,7 @@ public class DealMessageServiceImpl implements DealMessageService {
             return;
         }
 
-        //tryStrategyService.strategy(candlesResponse);
-        otcCandlesService.receiveCandles(candlesResponse);
+        tryStrategyService.strategy(candlesResponse);
+        //otcCandlesService.receiveCandles(candlesResponse);
     }
 }
