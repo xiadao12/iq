@@ -49,21 +49,21 @@ public class StrategyShadowLineEnough implements StrategyBase {
         activeTimes.add(activeTime2);
 
         //前面蜡烛连续至少个数
-        for (Integer preSize = 2; preSize <= 2; preSize++) {
+        for (Integer preSize = 3; preSize <= 3; preSize++) {
             //前面蜡烛连续总长度
-            for (BigDecimal totalSizeFactor = new BigDecimal(0.00001);
-                 totalSizeFactor.compareTo(new BigDecimal(0.0001)) <= 0;
-                 totalSizeFactor = totalSizeFactor.add(new BigDecimal(0.00001))) {
+            for (BigDecimal totalSizeFactor = new BigDecimal(0.00009);
+                 totalSizeFactor.compareTo(new BigDecimal(0.00009)) <= 0;
+                 totalSizeFactor = totalSizeFactor.add(new BigDecimal(0.0001))) {
                 //支付分钟数
-                for (Integer payMin = 1; payMin <= 3; payMin++) {
+                for (Integer payMin = 3; payMin <= 3; payMin++) {
                     //符合长度的主影线长度因子
-                    for (BigDecimal conformMainShadowFactor = new BigDecimal(0.00001);
-                         conformMainShadowFactor.compareTo(new BigDecimal(0.0001)) <= 0;
-                         conformMainShadowFactor = conformMainShadowFactor.add(new BigDecimal(0.00001))) {
+                    for (BigDecimal conformMainShadowFactor = new BigDecimal(0.00009);
+                         conformMainShadowFactor.compareTo(new BigDecimal(0.00009)) <= 0;
+                         conformMainShadowFactor = conformMainShadowFactor.add(new BigDecimal(0.0001))) {
 
                         //符合长度的副影线长度因子
-                        for (BigDecimal conformSecondShadowFactor = new BigDecimal(0.00001);
-                             conformSecondShadowFactor.compareTo(new BigDecimal(0.0001)) <= 0;
+                        for (BigDecimal conformSecondShadowFactor = new BigDecimal(0.00005);
+                             conformSecondShadowFactor.compareTo(new BigDecimal(0.00005)) <= 0;
                              conformSecondShadowFactor = conformSecondShadowFactor.add(new BigDecimal(0.00001))) {
 
                             //符合长度的实体长度因子
@@ -80,20 +80,19 @@ public class StrategyShadowLineEnough implements StrategyBase {
                                 System.out.println("长影线蜡烛是否反向：" + entityReverse);
                                 System.out.println("符合时间：");
                                 activeTimes.stream().forEach(u ->
-                                        System.out.println("[" + u.getActiveStartTimeString() + u.getActiveEndTimeString() + "]，"));
+                                        System.out.println("[" + u.getActiveStartTimeString() + " " + u.getActiveEndTimeString() + "]，"));
 
                                 //记录赢输的时间点
                                 List winTimeList = new ArrayList<>();
                                 List lostTimeList = new ArrayList<>();
 
-                                first:
-                                for (int i = 0; i < candles.size() - payMin; i++) {
+                                for (int i = 5; i < candles.size(); i++) {
 
                                     //获取当前蜡烛
                                     CandlesResponse.Candle currentCandle = candles.get(i);
 
                                     ///////////////////判断是否符合时间
-                                    if (StrategyUtil.judgeActivetime(activeTimes, currentCandle)) {
+                                    if (!StrategyUtil.judgeActivetime(activeTimes, currentCandle)) {
                                         continue;
                                     }
 /*
@@ -149,11 +148,33 @@ public class StrategyShadowLineEnough implements StrategyBase {
                                         }
 
                                         //判断前置蜡烛是否连续涨
-                                        for (int j = 1; j <= preSize; j++) {
-                                            CandleMessage preCandleMessage = CandleMessage.getCandleMessage(candles.get(i - j));
+                                        int preCandleJ = 1;
+                                        List<CandlesResponse.Candle> preCandles = new ArrayList<>();
+                                        while (true) {
+
+                                            CandlesResponse.Candle preCandle = candles.get(i - preCandleJ);
+                                            CandleMessage preCandleMessage = CandleMessage.getCandleMessage(preCandle);
                                             if (preCandleMessage.getTrend() != 1) {
-                                                continue first;
+                                                break;
                                             }
+
+                                            preCandles.add(preCandle);
+
+                                            preCandleJ++;
+                                        }
+                                        //判断个数
+                                        if (preCandles.size() < preSize) {
+                                            continue;
+                                        }
+
+                                        //判断前面整体长度
+                                        CandlesResponse.Candle preCandleLast = preCandles.get(0);
+                                        CandlesResponse.Candle preCandleFirst = preCandles.get(preCandles.size() - 1);
+
+                                        //符合前面蜡烛所有长度
+                                        BigDecimal conformTotalSize = currentClose.multiply(totalSizeFactor);
+                                        if (preCandleLast.getClose().subtract(preCandleFirst.getOpen()).compareTo(conformTotalSize) < 0) {
+                                            continue;
                                         }
 
                                         //判断盈亏
@@ -196,11 +217,32 @@ public class StrategyShadowLineEnough implements StrategyBase {
                                         }
 
                                         //判断前置蜡烛是否连续涨
-                                        for (int j = 1; j <= preSize; j++) {
-                                            CandleMessage preCandleMessage = CandleMessage.getCandleMessage(candles.get(i - j));
+                                        int preCandleJ = 1;
+                                        List<CandlesResponse.Candle> preCandles = new ArrayList<>();
+                                        while (true) {
+                                            CandlesResponse.Candle preCandle = candles.get(i - preCandleJ);
+                                            CandleMessage preCandleMessage = CandleMessage.getCandleMessage(preCandle);
                                             if (preCandleMessage.getTrend() != -1) {
-                                                continue first;
+                                                break;
                                             }
+
+                                            preCandles.add(preCandle);
+
+                                            preCandleJ++;
+                                        }
+                                        //判断个数
+                                        if (preCandles.size() < preSize) {
+                                            continue;
+                                        }
+
+                                        //判断前面整体长度
+                                        CandlesResponse.Candle preCandleLast = preCandles.get(0);
+                                        CandlesResponse.Candle preCandleFirst = preCandles.get(preCandles.size() - 1);
+
+                                        //符合前面蜡烛所有长度
+                                        BigDecimal conformTotalSize = currentClose.multiply(totalSizeFactor);
+                                        if (preCandleFirst.getOpen().subtract(preCandleLast.getClose()).compareTo(conformTotalSize) < 0) {
+                                            continue;
                                         }
 
                                         //判断盈亏
