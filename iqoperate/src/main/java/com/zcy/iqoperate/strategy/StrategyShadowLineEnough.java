@@ -48,21 +48,21 @@ public class StrategyShadowLineEnough implements StrategyBase {
         activeTimes.add(activeTime1);
         activeTimes.add(activeTime2);
 
-        //前面蜡烛连续至少个数
-        for (Integer preSize = 3; preSize <= 3; preSize++) {
-            //前面蜡烛连续总长度
-            for (BigDecimal totalSizeFactor = new BigDecimal(0.00009);
-                 totalSizeFactor.compareTo(new BigDecimal(0.00009)) <= 0;
-                 totalSizeFactor = totalSizeFactor.add(new BigDecimal(0.0001))) {
-                //支付分钟数
-                for (Integer payMin = 3; payMin <= 3; payMin++) {
+        //支付分钟数
+        for (Integer payMin = 1; payMin <= 5; payMin += 4) {
+            //前面蜡烛连续至少个数
+            for (Integer preSize = 3; preSize <= 5; preSize++) {
+                //前面蜡烛连续总长度
+                for (BigDecimal totalSizeFactor = new BigDecimal(0.0001);
+                     totalSizeFactor.compareTo(new BigDecimal(0.0005)) <= 0;
+                     totalSizeFactor = totalSizeFactor.add(new BigDecimal(0.0001))) {
                     //符合长度的主影线长度因子
-                    for (BigDecimal conformMainShadowFactor = new BigDecimal(0.00009);
-                         conformMainShadowFactor.compareTo(new BigDecimal(0.00009)) <= 0;
-                         conformMainShadowFactor = conformMainShadowFactor.add(new BigDecimal(0.0001))) {
+                    for (BigDecimal conformMainShadowFactor = new BigDecimal(0.00005);
+                         conformMainShadowFactor.compareTo(new BigDecimal(0.0002)) <= 0;
+                         conformMainShadowFactor = conformMainShadowFactor.add(new BigDecimal(0.00001))) {
 
                         //符合长度的副影线长度因子
-                        for (BigDecimal conformSecondShadowFactor = new BigDecimal(0.00005);
+                        for (BigDecimal conformSecondShadowFactor = new BigDecimal(0.00001);
                              conformSecondShadowFactor.compareTo(new BigDecimal(0.00005)) <= 0;
                              conformSecondShadowFactor = conformSecondShadowFactor.add(new BigDecimal(0.00001))) {
 
@@ -72,8 +72,9 @@ public class StrategyShadowLineEnough implements StrategyBase {
                                  conformEntityShadowFactor = conformEntityShadowFactor.add(new BigDecimal(0.00001))) {
 
                                 System.out.println();
-                                System.out.println("前面蜡烛连续个数：" + preSize);
                                 System.out.println("支付分钟数：" + payMin);
+                                System.out.println("前面蜡烛连续个数：" + preSize);
+                                System.out.println("前面蜡烛连续总长度因子：" + totalSizeFactor);
                                 System.out.println("主影线长度因子：" + conformMainShadowFactor);
                                 System.out.println("副影线长度因子：" + conformSecondShadowFactor);
                                 System.out.println("实体长度因子：" + conformEntityShadowFactor);
@@ -265,8 +266,8 @@ public class StrategyShadowLineEnough implements StrategyBase {
 
                                 System.out.println("winNum = " + winTimeList.size());
                                 System.out.println("lostNum = " + lostTimeList.size());
-                                System.out.println("winTimeList = " + winTimeList);
-                                System.out.println("lostTimeList = " + lostTimeList);
+/*                                System.out.println("winTimeList = " + winTimeList);
+                                System.out.println("lostTimeList = " + lostTimeList);*/
 
                             }
                         }
